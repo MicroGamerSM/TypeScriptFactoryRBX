@@ -83,7 +83,7 @@ export class ValueSuccessCase<T> {
 		return fallback;
 	}
 
-	// Warns in the SuccessCase contains a failure, prints otherwise.
+	// Warns if the SuccessCase contains a failure, prints otherwise.
 	Display() {
 		if (this.success) {
 			print(this.message);
