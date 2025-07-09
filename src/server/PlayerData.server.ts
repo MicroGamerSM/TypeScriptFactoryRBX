@@ -1,15 +1,10 @@
 import ProfileStore from "@rbxts/profile-store";
-import { PlayerData, ToolType } from "shared/Classes";
+import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
 import Network from "shared/Networker";
 
 const Players = game.GetService("Players");
 
-const store = ProfileStore.New<PlayerData>("PlayerData", {
-	Money: 100,
-	AxeTool: ToolType.Wood,
-	ShovelTool: ToolType.None,
-	PickaxeTool: ToolType.None,
-});
+const store = ProfileStore.New<IPlayerData>("PlayerData", BuildDefaultPlayerData());
 
 Players.PlayerAdded.Connect((player) => {
 	task.spawn(() => {
