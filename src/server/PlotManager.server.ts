@@ -77,16 +77,11 @@ for (const child of PlotsFolder.GetChildren()) {
 	if (clickDetector) {
 		clickDetector.MouseClick.Connect((player: Player) => {
 			print(`Player ${player.DisplayName} is trying to claim plot ${plot.Name}`);
-			const success = tryClaimPlot(player, plot);
-			if (success.success) {
-				print(success.message);
-			} else {
-				warn(success.message);
-			}
+			tryClaimPlot(player, plot).Display();
 		});
 	}
 }
 
 Players.PlayerRemoving.Connect((player: Player) => {
-	tryReleasePlot(player);
+	tryReleasePlot(player).Display();
 });

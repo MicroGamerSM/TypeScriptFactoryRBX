@@ -14,12 +14,29 @@ export enum Item {
 	Plank = "Plank",
 	Nails = "Nails",
 	WoodFrame = "Wood Frame",
+	Bench = "Bench",
+	Table = "Table",
+
+	Sand = "Sand",
+	Glass = "Glass",
+	Window = "Window",
 }
 
 export class Buildable {
 	name: string;
 	description: string;
 	requiredMaterials: Map<Item, number>;
+
+	static registry: Buildable[];
+
+	AddToRegistry(): SuccessCase {
+		if (Buildable.registry.includes(this)) return SuccessCase.Fail("Already in registry");
+		if (Buildable.registry.some((obj) => obj.name === this.name) !== undefined)
+			return SuccessCase.Fail("Already in registry by name");
+
+		Buildable.registry.insert(Buildable.registry.size(), this);
+		return SuccessCase.Ok("Added to registry");
+	}
 
 	constructor(name: string, description: string = "No description given.", requiredMaterials: Map<Item, number>) {
 		this.name = name;
@@ -58,13 +75,13 @@ export class BuiltObject {
 			this.buildingMaterialsRequired.delete(item);
 		}
 
-		this.CheckCanBuild();
+		this.CheckCanBecomeBuilt();
 
 		const leftover = amount - toInsert;
 		return leftover;
 	}
 
-	CheckCanBuild() {
+	CheckCanBecomeBuilt() {
 		if (this.buildingMaterialsRequired === undefined) return;
 		if (!this.buildingMaterialsRequired.isEmpty()) return;
 
