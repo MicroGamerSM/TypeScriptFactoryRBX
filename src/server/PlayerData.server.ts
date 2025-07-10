@@ -2,9 +2,12 @@ import ProfileStore from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
 import Network from "shared/Networker";
 
+const RunService = game.GetService("RunService");
+const DataStore = RunService.IsStudio() ? "Development" : "Production";
+
 const Players = game.GetService("Players");
 
-const store = ProfileStore.New<IPlayerData>("PlayerData", BuildDefaultPlayerData());
+const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
 Players.PlayerAdded.Connect((player) => {
 	task.spawn(() => {
