@@ -147,7 +147,7 @@ export class SuccessCase {
 		return $tuple(this.success, this.message);
 	}
 
-	// Warns in the SuccessCase contains a failure, prints otherwise.
+	// Warns if the SuccessCase contains a failure, prints otherwise.
 	Display() {
 		if (this.success) {
 			print(this.message);
