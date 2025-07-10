@@ -27,7 +27,7 @@ export class Buildable {
 	description: string;
 	requiredMaterials: Map<Item, number>;
 
-	static registry: Buildable[];
+	private static registry: Buildable[];
 
 	AddToRegistry(): SuccessCase {
 		if (Buildable.registry.includes(this)) return SuccessCase.Fail("Already in registry");
@@ -36,6 +36,10 @@ export class Buildable {
 
 		Buildable.registry.insert(Buildable.registry.size(), this);
 		return SuccessCase.Ok("Added to registry");
+	}
+
+	static GetFromReigstry(name: string): Buildable | undefined {
+		return this.registry.find((buildable) => buildable.name === name);
 	}
 
 	constructor(name: string, description: string = "No description given.", requiredMaterials: Map<Item, number>) {
