@@ -174,6 +174,17 @@ export class SuccessCase {
 		return new SuccessCase(source[0], source[1]);
 	}
 
+	static Try<F extends (...args: readonly unknown[]) => undefined>(method: F, ...args: Parameters<F>): SuccessCase {
+		try {
+			method(...args);
+		} catch (error) {
+			if (typeOf(error) === "string") {
+				return SuccessCase.Fail((error as string) ?? "Failed to parse the error message as a string.");
+			}
+		}
+		return SuccessCase.Ok("The function completed successfully.");
+	}
+
 	// Creates a successful SuccessCase.
 	static Ok(message: string): SuccessCase {
 		return new SuccessCase(true, message);
@@ -247,6 +258,23 @@ export class ValueSuccessCase<T> {
 	// Creates a ValueSuccessCase from a tuple.
 	static FromTuple<T>(source: LuaTuple<[boolean, string, T]>): ValueSuccessCase<T> {
 		return new ValueSuccessCase(source[0], source[1], source[2]);
+	}
+
+	static Try<F extends (...args: readonly unknown[]) => J, J>(
+		method: F,
+		...args: Parameters<F>
+	): ValueSuccessCase<J | undefined> {
+		try {
+			return ValueSuccessCase.Ok("The function completed successfully", method(...args));
+		} catch (error) {
+			if (typeOf(error) === "string") {
+				return ValueSuccessCase.Fail(
+					(error as string) ?? "Failed to parse the error message as a string.",
+					undefined,
+				);
+			}
+		}
+		error("Managed to exit try-catch.");
 	}
 
 	// Creates a successful ValueSuccessCase.
