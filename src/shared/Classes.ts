@@ -1,4 +1,5 @@
 export type NotUndefined<T> = Exclude<T, undefined>;
+export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
 
 export enum ToolType {
 	None = 0,
@@ -20,6 +21,47 @@ export enum Item {
 	Sand = "Sand",
 	Glass = "Glass",
 	Window = "Window",
+}
+
+export interface IPlayerData {
+	money: number;
+	axeTool: ToolType;
+	axeLostDurability: number;
+	pickaxeTool: ToolType;
+	pickaxeLostDurability: number;
+	shovelTool: ToolType;
+	shovelLostDurability: number;
+}
+
+export abstract class Observable<T extends object> {
+	private readonly _listeners = new Set<ChangeListener<T>>();
+
+	/** Subscribes to property changes. Returns an unsubscribe function. */
+	Changed(fn: ChangeListener<T>): () => void {
+		this._listeners.add(fn);
+		return () => this._listeners.delete(fn);
+	}
+
+	protected constructor(initial: T) {
+		// 1. Shallow-copy the fields before setting up the metatable
+		for (const [k, v] of pairs(initial as Record<string, unknown>)) {
+			(this as Record<string, unknown>)[k] = v;
+		}
+
+		// 2. Install metatable to observe changes
+		return setmetatable(this, {
+			__index: (self, key) => rawget(self, key),
+			__newindex: (self, key, value) => {
+				const oldValue = rawget(self, key);
+				if (oldValue !== value) {
+					rawset(self, key, value);
+					for (const listener of (this as Observable<T>)._listeners) {
+						listener(key as keyof T, oldValue as never, value as never);
+					}
+				}
+			},
+		}) as never;
+	}
 }
 
 export class Buildable {
@@ -118,17 +160,7 @@ export class BuiltObject {
 	}
 }
 
-export interface IPlayerData {
-	money: number;
-	axeTool: ToolType;
-	axeLostDurability: number;
-	pickaxeTool: ToolType;
-	pickaxeLostDurability: number;
-	shovelTool: ToolType;
-	shovelLostDurability: number;
-}
-
-export class PlayerDetails implements IPlayerData {
+export class PlayerDetails extends Observable<IPlayerData> implements IPlayerData {
 	money: number;
 	axeTool: ToolType;
 	axeLostDurability: number;
@@ -138,6 +170,7 @@ export class PlayerDetails implements IPlayerData {
 	shovelLostDurability: number;
 
 	constructor(source: IPlayerData) {
+		super(source);
 		this.money = source.money;
 		this.axeTool = source.axeTool;
 		this.axeLostDurability = source.axeLostDurability;
@@ -146,19 +179,6 @@ export class PlayerDetails implements IPlayerData {
 		this.shovelTool = source.shovelTool;
 		this.shovelLostDurability = source.shovelLostDurability;
 	}
-}
-
-// Generates a default player data object.
-export function BuildDefaultPlayerData(): IPlayerData {
-	return {
-		money: 100,
-		axeTool: ToolType.Wood,
-		axeLostDurability: 0,
-		pickaxeTool: ToolType.None,
-		pickaxeLostDurability: 0,
-		shovelTool: ToolType.None,
-		shovelLostDurability: 0,
-	};
 }
 
 // Represents a possible failure.
@@ -317,4 +337,16 @@ export class ValueSuccessCase<T> {
 	toString(): string {
 		return `${this.success ? "✔️" : "✖️"} ${this.message}`;
 	}
+}
+// Generates a default player data object.
+export function BuildDefaultPlayerData(): IPlayerData {
+	return {
+		money: 100,
+		axeTool: ToolType.Wood,
+		axeLostDurability: 0,
+		pickaxeTool: ToolType.None,
+		pickaxeLostDurability: 0,
+		shovelTool: ToolType.None,
+		shovelLostDurability: 0,
+	};
 }
