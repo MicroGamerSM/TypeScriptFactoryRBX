@@ -182,7 +182,8 @@ export class PlayerDetails extends Observable<IPlayerData> implements IPlayerDat
 		this.shovelLostDurability = source.Data.shovelLostDurability;
 
 		this.Changed((key, oldV, newV) => {
-			source.Data[key] = newV;
+			if (source.IsActive()) source.Data[key] = newV;
+			else warn("Using PlayerDetails after Profile is disabled!");
 		});
 	}
 }
