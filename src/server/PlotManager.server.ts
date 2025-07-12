@@ -1,9 +1,9 @@
+//#region Setup
 import { SuccessCase } from "shared/Classes";
 
 const Players = game.GetService("Players");
 const Workspace = game.GetService("Workspace");
 
-//#region Types
 type PlotObject = Model & {
 	BasePart: Part;
 	Bounds: Part;
@@ -16,15 +16,14 @@ type PlotObject = Model & {
 		};
 	};
 };
-//#endregion
 
 const PlotsFolder = Workspace.FindFirstChild("Plots") as Folder;
-if (!PlotsFolder) {
-	error("Plots folder not found");
-}
+assert(PlotsFolder, "Plots folder not found");
+const plots = PlotsFolder.GetChildren().map((plot) => plot as PlotObject);
 
 const OwnershipData = new Map<Player, PlotObject>();
 const OwnershipDataR = new Map<PlotObject, Player>();
+//#endregion
 
 function isPlotOwned(plot: PlotObject): boolean {
 	return OwnershipDataR.has(plot);
@@ -70,18 +69,15 @@ function tryReleasePlot(player: Player): SuccessCase {
 	return SuccessCase.Ok("plot released");
 }
 
-for (const child of PlotsFolder.GetChildren()) {
-	const plot = child as PlotObject;
-	const clickDetector = plot?.Sign?.Display?.ClickDetector;
+function preparePlot(plot: PlotObject) {
+	const clickDetector = plot.Sign.Display.ClickDetector;
 
-	if (clickDetector) {
-		clickDetector.MouseClick.Connect((player: Player) => {
-			print(`Player ${player.DisplayName} is trying to claim plot ${plot.Name}`);
-			tryClaimPlot(player, plot).Display();
-		});
-	}
+	clickDetector.MouseClick.Connect((player: Player) => {
+		print(`Player ${player.DisplayName} is trying to claim plot ${plot.Name}`);
+		tryClaimPlot(player, plot).Display();
+	});
 }
 
-Players.PlayerRemoving.Connect((player: Player) => {
-	tryReleasePlot(player).Display();
-});
+plots.map(preparePlot);
+
+Players.PlayerRemoving.Connect((player: Player) => tryReleasePlot(player).Display());
