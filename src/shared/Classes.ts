@@ -1,3 +1,5 @@
+import { Profile } from "@rbxts/profile-store";
+
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
 
@@ -50,12 +52,12 @@ export abstract class Observable<T extends object> {
 
 		// 2. Install metatable to observe changes
 		return setmetatable(this, {
-			__index: (self, key) => rawget(self, key),
-			__newindex: (self, key, value) => {
-				const oldValue = rawget(self, key);
+			__index: (thisObject, key) => rawget(thisObject, key),
+			__newindex: (thisObject, key, value) => {
+				const oldValue = rawget(thisObject, key);
 				if (oldValue !== value) {
-					rawset(self, key, value);
-					for (const listener of (this as Observable<T>)._listeners) {
+					rawset(thisObject, key, value);
+					for (const listener of this._listeners) {
 						listener(key as keyof T, oldValue as never, value as never);
 					}
 				}
@@ -169,15 +171,19 @@ export class PlayerDetails extends Observable<IPlayerData> implements IPlayerDat
 	shovelTool: ToolType;
 	shovelLostDurability: number;
 
-	constructor(source: IPlayerData) {
-		super(source);
-		this.money = source.money;
-		this.axeTool = source.axeTool;
-		this.axeLostDurability = source.axeLostDurability;
-		this.pickaxeTool = source.pickaxeTool;
-		this.pickaxeLostDurability = source.pickaxeLostDurability;
-		this.shovelTool = source.shovelTool;
-		this.shovelLostDurability = source.shovelLostDurability;
+	constructor(source: Profile<IPlayerData, object>) {
+		super(source.Data);
+		this.money = source.Data.money;
+		this.axeTool = source.Data.axeTool;
+		this.axeLostDurability = source.Data.axeLostDurability;
+		this.pickaxeTool = source.Data.pickaxeTool;
+		this.pickaxeLostDurability = source.Data.pickaxeLostDurability;
+		this.shovelTool = source.Data.shovelTool;
+		this.shovelLostDurability = source.Data.shovelLostDurability;
+
+		this.Changed((key, oldV, newV) => {
+			source.Data[key] = oldV;
+		});
 	}
 }
 
