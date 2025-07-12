@@ -128,6 +128,26 @@ export interface IPlayerData {
 	shovelLostDurability: number;
 }
 
+export class PlayerDetails implements IPlayerData {
+	money: number;
+	axeTool: ToolType;
+	axeLostDurability: number;
+	pickaxeTool: ToolType;
+	pickaxeLostDurability: number;
+	shovelTool: ToolType;
+	shovelLostDurability: number;
+
+	constructor(source: IPlayerData) {
+		this.money = source.money;
+		this.axeTool = source.axeTool;
+		this.axeLostDurability = source.axeLostDurability;
+		this.pickaxeTool = source.pickaxeTool;
+		this.pickaxeLostDurability = source.pickaxeLostDurability;
+		this.shovelTool = source.shovelTool;
+		this.shovelLostDurability = source.shovelLostDurability;
+	}
+}
+
 // Generates a default player data object.
 export function BuildDefaultPlayerData(): IPlayerData {
 	return {
