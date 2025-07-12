@@ -119,25 +119,25 @@ export class BuiltObject {
 }
 
 export interface IPlayerData {
-	Money: number;
-	AxeTool: ToolType;
-	AxeLostDurability: number;
-	PickaxeTool: ToolType;
-	PickaxeLostDurability: number;
-	ShovelTool: ToolType;
-	ShovelLostDurability: number;
+	money: number;
+	axeTool: ToolType;
+	axeLostDurability: number;
+	pickaxeTool: ToolType;
+	pickaxeLostDurability: number;
+	shovelTool: ToolType;
+	shovelLostDurability: number;
 }
 
 // Generates a default player data object.
 export function BuildDefaultPlayerData(): IPlayerData {
 	return {
-		Money: 100,
-		AxeTool: ToolType.Wood,
-		AxeLostDurability: 0,
-		PickaxeTool: ToolType.None,
-		PickaxeLostDurability: 0,
-		ShovelTool: ToolType.None,
-		ShovelLostDurability: 0,
+		money: 100,
+		axeTool: ToolType.Wood,
+		axeLostDurability: 0,
+		pickaxeTool: ToolType.None,
+		pickaxeLostDurability: 0,
+		shovelTool: ToolType.None,
+		shovelLostDurability: 0,
 	};
 }
 
