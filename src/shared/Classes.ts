@@ -21,6 +21,24 @@ export enum ToolType {
 	Iron = 4,
 }
 
+export class Registry {
+	//overloads
+	static Get(name: string): Item | undefined;
+	static Get(name: string): Buildable | undefined;
+	//actual function
+	static Get(name: string) {
+		return Item.GetFromReigstry(name) ?? Buildable.GetFromReigstry(name);
+	}
+
+	//overloads
+	static Add(obj: Item): SuccessCase;
+	static Add(obj: Buildable): SuccessCase;
+	//actual function
+	static Add(obj: Item | Buildable): SuccessCase {
+		return obj.AddToRegistry();
+	}
+}
+
 export class Item {
 	name: string;
 	description: string;
