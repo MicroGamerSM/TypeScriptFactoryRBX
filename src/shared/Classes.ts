@@ -1,7 +1,7 @@
 import { Profile } from "@rbxts/profile-store";
 
 const HttpService = game.GetService("HttpService");
-const ITEM_LIST_RAW_GITHUB_URL =
+const WORLD_DATA_SOURCE_URL =
 	"https://raw.githubusercontent.com/MicroGamerSM/TypeScriptFactoryRBX/refs/heads/master/itemList.json";
 
 export type NotUndefined<T> = Exclude<T, undefined>;
@@ -428,7 +428,7 @@ export function BuildDefaultPlayerData(): IPlayerData {
 }
 
 try {
-	const world = HttpService.JSONDecode(HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL)) as WorldData;
+	const world = HttpService.JSONDecode(HttpService.GetAsync(WORLD_DATA_SOURCE_URL)) as WorldData;
 	world.Items.map((item) => Item.BuildFromJsonItem(item).AddToRegistry());
 } catch (e) {
 	warn(
