@@ -11,6 +11,7 @@ export type JsonItem = {
 	Description: string;
 	Price: number;
 	SellValue: number;
+	Tags: string[];
 };
 export type JsonRecipe = {
 	Type: string;
@@ -31,13 +32,18 @@ export enum ToolType {
 }
 
 export class Item {
-	name: string;
-	description: string;
-	price: number;
-	sellValue: number;
+	readonly name: string;
+	readonly description: string;
+	readonly price: number;
+	readonly sellValue: number;
+	readonly tags: string[];
 
 	CanSell(): boolean {
 		return this.sellValue !== 0;
+	}
+
+	HasTag(tag: string): boolean {
+		return this.tags.includes(tag);
 	}
 
 	private static registry: Item[] = [];
@@ -55,6 +61,10 @@ export class Item {
 		return this.registry.find((item) => item.name === name);
 	}
 
+	static GetAllFromRegistryWithTag(tag: string): Item[] {
+		return Item.registry.filter((item) => item.HasTag(tag));
+	}
+
 	static BuildFromJson(json: string): Item {
 		const objTable = HttpService.JSONDecode(json) as JsonItem;
 		return Item.BuildFromJsonItem(objTable);
@@ -69,11 +79,18 @@ export class Item {
 		items.map((item) => this.BuildFromJsonItem(item).AddToRegistry());
 	}
 
-	constructor(name: string, description: string = "No description given.", price: number = 0, sellValue: number = 0) {
+	constructor(
+		name: string,
+		description: string = "No description given.",
+		price: number = 0,
+		sellValue: number = 0,
+		tags: string[] = [],
+	) {
 		this.name = name;
 		this.description = description;
 		this.price = price;
 		this.sellValue = sellValue;
+		this.tags = tags;
 	}
 }
 
