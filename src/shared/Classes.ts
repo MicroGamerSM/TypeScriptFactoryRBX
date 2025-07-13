@@ -19,6 +19,21 @@ export class Item {
 	price: number;
 	sellValue: number;
 
+	private static registry: Item[];
+
+	AddToRegistry(): SuccessCase {
+		if (Item.registry.includes(this)) return SuccessCase.Fail("Already in registry");
+		if (Item.registry.some((obj) => obj.name === this.name) !== undefined)
+			return SuccessCase.Fail("Already in registry by name");
+
+		Item.registry.insert(Item.registry.size(), this);
+		return SuccessCase.Ok("Added to registry");
+	}
+
+	static GetFromReigstry(name: string): Item | undefined {
+		return this.registry.find((item) => item.name === name);
+	}
+
 	constructor(name: string, description: string, price: number, sellValue: number) {
 		this.name = name;
 		this.description = description;
