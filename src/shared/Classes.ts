@@ -12,8 +12,14 @@ export type JsonItem = {
 	Price: number;
 	SellValue: number;
 };
+export type JsonRecipe = {
+	Type: string;
+	Input: Map<string, number>;
+	Output: Map<string, number>;
+};
 export type WorldData = {
 	Items: JsonItem[];
+	Recipes: JsonRecipe[];
 };
 
 export enum ToolType {
