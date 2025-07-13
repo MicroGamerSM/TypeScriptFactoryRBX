@@ -27,6 +27,10 @@ export class Item {
 	price: number;
 	sellValue: number;
 
+	CanSell(): boolean {
+		return this.sellValue !== 0;
+	}
+
 	private static registry: Item[];
 
 	AddToRegistry(): SuccessCase {
@@ -43,12 +47,17 @@ export class Item {
 	}
 
 	static BuildFromJson(json: string): Item {
-		const objTable: JsonItem = HttpService.JSONDecode(json) as JsonItem;
+		const objTable = HttpService.JSONDecode(json) as JsonItem;
 		return Item.BuildFromJsonItem(objTable);
 	}
 
 	static BuildFromJsonItem(jitem: JsonItem): Item {
 		return new Item(jitem.Name, jitem.Description, jitem.Price, jitem.SellValue);
+	}
+
+	static BuildJsonArrayToRegistry(array: string) {
+		const items = HttpService.JSONDecode(array) as JsonItem[];
+		items.map((item) => this.BuildFromJsonItem(item).AddToRegistry());
 	}
 
 	constructor(name: string, description: string = "No description given.", price: number = 0, sellValue: number = 0) {
@@ -390,4 +399,13 @@ export function BuildDefaultPlayerData(): IPlayerData {
 		shovelTool: ToolType.None,
 		shovelLostDurability: 0,
 	};
+}
+
+try {
+	const itemList = HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL);
+	Item.BuildJsonArrayToRegistry(itemList);
+} catch {
+	error(
+		"A critical failure has occured: The game failed to load remote resources, being the Base Item Registry. Please check your internet connection.",
+	);
 }
