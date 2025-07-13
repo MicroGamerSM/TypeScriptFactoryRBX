@@ -31,7 +31,7 @@ export class Item {
 		return this.sellValue !== 0;
 	}
 
-	private static registry: Item[];
+	private static registry: Item[] = [];
 
 	AddToRegistry(): SuccessCase {
 		if (Item.registry.includes(this)) return SuccessCase.Fail("Already in registry");
@@ -114,7 +114,7 @@ export class Buildable {
 	description: string;
 	requiredMaterials: Map<Item, number>;
 
-	private static registry: Buildable[];
+	private static registry: Buildable[] = [];
 
 	AddToRegistry(): SuccessCase {
 		if (Buildable.registry.includes(this)) return SuccessCase.Fail("Already in registry");
