@@ -1,4 +1,4 @@
-import ProfileStore from "@rbxts/profile-store";
+import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
 import Network from "shared/Networker";
 
@@ -8,6 +8,8 @@ const DataStore = RunService.IsStudio() ? "Development" : "Production";
 const Players = game.GetService("Players");
 
 const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
+
+const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
 
 Players.PlayerAdded.Connect((player) => {
 	task.spawn(() => {
@@ -31,7 +33,12 @@ Players.PlayerAdded.Connect((player) => {
 		player.AncestryChanged.Connect((_, parent) => {
 			if (!parent) {
 				profile.EndSession(); // flush and release
+				profiles.delete(player);
 			}
 		});
+
+		profiles.set(player, profile);
 	});
 });
+
+export default profiles;
