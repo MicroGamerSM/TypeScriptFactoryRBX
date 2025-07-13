@@ -1,5 +1,7 @@
 import { Profile } from "@rbxts/profile-store";
 
+const HttpService = game.GetService("HttpService");
+
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
 
@@ -11,18 +13,18 @@ export enum ToolType {
 	Iron = 4,
 }
 
-export enum Item {
-	OakLog = "Oak Log",
-	Pillar = "Pillar",
-	Plank = "Plank",
-	Nails = "Nails",
-	WoodFrame = "Wood Frame",
-	Bench = "Bench",
-	Table = "Table",
+export class Item {
+	name: string;
+	description: string;
+	price: number;
+	sellValue: number;
 
-	Sand = "Sand",
-	Glass = "Glass",
-	Window = "Window",
+	constructor(name: string, description: string, price: number, sellValue: number) {
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.sellValue = sellValue;
+	}
 }
 
 export interface IPlayerData {
