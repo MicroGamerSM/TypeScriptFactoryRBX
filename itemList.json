@@ -1,0 +1,14 @@
+[
+    {
+        "Name": "Oak Log",
+        "Description": "A log from an oak tree.",
+        "Price": 3,
+        "SellValue": 2
+    },
+    {
+        "Name": "Pullar",
+        "Description": "The core of a log.",
+        "Price": 5,
+        "SellValue": 4
+    }
+]
