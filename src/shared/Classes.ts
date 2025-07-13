@@ -404,8 +404,9 @@ export function BuildDefaultPlayerData(): IPlayerData {
 try {
 	const itemList = HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL);
 	Item.BuildJsonArrayToRegistry(itemList);
-} catch {
-	error(
+} catch (e) {
+	warn(
 		"A critical failure has occured: The game failed to load remote resources, being the Base Item Registry. Please check your internet connection.",
+		e,
 	);
 }
