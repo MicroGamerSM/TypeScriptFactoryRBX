@@ -1,8 +1,8 @@
 import { Profile } from "@rbxts/profile-store";
 
 const HttpService = game.GetService("HttpService");
-const ITEM_LIST_RAW_GITHUB_URL =
-	"https://raw.githubusercontent.com/MicroGamerSM/TypeScriptFactoryRBX/refs/heads/master/itemList.json";
+const WORLD_DATA_SOURCE_URL =
+	"https://raw.githubusercontent.com/MicroGamerSM/TypeScriptFactoryRBX/refs/heads/master/world.json";
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
@@ -11,6 +11,16 @@ export type JsonItem = {
 	Description: string;
 	Price: number;
 	SellValue: number;
+	Tags: string[];
+};
+export type JsonRecipe = {
+	Type: string;
+	Input: Map<string, number>;
+	Output: Map<string, number>;
+};
+export type WorldData = {
+	Items: JsonItem[];
+	Recipes: JsonRecipe[];
 };
 
 export enum ToolType {
@@ -22,13 +32,18 @@ export enum ToolType {
 }
 
 export class Item {
-	name: string;
-	description: string;
-	price: number;
-	sellValue: number;
+	readonly name: string;
+	readonly description: string;
+	readonly price: number;
+	readonly sellValue: number;
+	readonly tags: string[];
 
 	CanSell(): boolean {
 		return this.sellValue !== 0;
+	}
+
+	HasTag(tag: string): boolean {
+		return this.tags.includes(tag);
 	}
 
 	private static registry: Item[] = [];
@@ -46,6 +61,10 @@ export class Item {
 		return this.registry.find((item) => item.name === name);
 	}
 
+	static GetAllFromRegistryWithTag(tag: string): Item[] {
+		return Item.registry.filter((item) => item.HasTag(tag));
+	}
+
 	static BuildFromJson(json: string): Item {
 		const objTable = HttpService.JSONDecode(json) as JsonItem;
 		return Item.BuildFromJsonItem(objTable);
@@ -60,11 +79,18 @@ export class Item {
 		items.map((item) => this.BuildFromJsonItem(item).AddToRegistry());
 	}
 
-	constructor(name: string, description: string = "No description given.", price: number = 0, sellValue: number = 0) {
+	constructor(
+		name: string,
+		description: string = "No description given.",
+		price: number = 0,
+		sellValue: number = 0,
+		tags: string[] = [],
+	) {
 		this.name = name;
 		this.description = description;
 		this.price = price;
 		this.sellValue = sellValue;
+		this.tags = tags;
 	}
 }
 
@@ -402,8 +428,8 @@ export function BuildDefaultPlayerData(): IPlayerData {
 }
 
 try {
-	const itemList = HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL);
-	Item.BuildJsonArrayToRegistry(itemList);
+	const world = HttpService.JSONDecode(HttpService.GetAsync(WORLD_DATA_SOURCE_URL)) as WorldData;
+	world.Items.map((item) => Item.BuildFromJsonItem(item).AddToRegistry());
 } catch (e) {
 	warn(
 		"A critical failure has occured: The game failed to load remote resources, being the Base Item Registry. Please check your internet connection.",
