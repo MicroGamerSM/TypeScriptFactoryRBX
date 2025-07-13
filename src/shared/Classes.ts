@@ -1,6 +1,8 @@
 import { Profile } from "@rbxts/profile-store";
 
 const HttpService = game.GetService("HttpService");
+const ITEM_LIST_RAW_GITHUB_URL =
+	"https://raw.githubusercontent.com/MicroGamerSM/TypeScriptFactoryRBX/refs/heads/master/itemList.json";
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
