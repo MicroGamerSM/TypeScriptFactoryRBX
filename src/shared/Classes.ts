@@ -12,6 +12,9 @@ export type JsonItem = {
 	Price: number;
 	SellValue: number;
 };
+export type WorldData = {
+	Items: JsonItem[];
+};
 
 export enum ToolType {
 	None = 0,
@@ -402,8 +405,8 @@ export function BuildDefaultPlayerData(): IPlayerData {
 }
 
 try {
-	const itemList = HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL);
-	Item.BuildJsonArrayToRegistry(itemList);
+	const world = HttpService.JSONDecode(HttpService.GetAsync(ITEM_LIST_RAW_GITHUB_URL)) as WorldData;
+	world.Items.map((item) => Item.BuildFromJsonItem(item).AddToRegistry());
 } catch (e) {
 	warn(
 		"A critical failure has occured: The game failed to load remote resources, being the Base Item Registry. Please check your internet connection.",

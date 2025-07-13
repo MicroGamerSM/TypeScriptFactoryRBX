@@ -1,0 +1,75 @@
+{
+    "Items": [
+      {
+        "Name": "Oak Log",
+        "Description": "A log from an oak tree.",
+        "Price": 5,
+        "SellValue": 4,
+        "Tags": ["Log"]
+      },
+      {
+        "Name": "Pillar",
+        "Description": "The core of a log.",
+        "Price": 5,
+        "SellValue": 4,
+        "Tags": []
+      },
+      {
+        "Name": "Plank",
+        "Description": "A small slab of wood. Also a core component for many other items.",
+        "Price": 7,
+        "SellValue": 3,
+        "Tags": []
+      },
+      {
+        "Name": "Nail",
+        "Description": "Lets you put wood together. Like glue, but very, incredibly different.",
+        "Price": 20,
+        "SellValue": 0,
+        "Tags": []
+      },
+      {
+        "Name": "Wood Frame",
+        "Description": "A frame, made of wood. Never would have guessed it.",
+        "Price": 30,
+        "SellValue": 25
+      },
+      {
+        "Name": "Table",
+        "Description": "A nice square table.",
+        "Price": 50,
+        "SellValue": 35,
+        "Tags": []
+      }
+    ],
+    "Recipes": [
+      {
+        "Type": "sawing",
+        "Input": {
+          "Oak Log": 1
+        },
+        "Output": {
+          "Pillar": 1
+        }
+      },
+      {
+        "Type": "sawing",
+        "Input": {
+          "Pillar": 1
+        },
+        "Output": {
+          "Plank": 3
+        }
+      },
+      {
+        "Type": "carpenting",
+        "Input": {
+          "Plank": 4,
+          "Nail": 4
+        },
+        "Output": {
+          "Wood Frame": 1
+        }
+      }
+    ]
+  }
