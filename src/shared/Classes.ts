@@ -4,6 +4,12 @@ const HttpService = game.GetService("HttpService");
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
+export type JsonItem = {
+	Name: string;
+	Description: string;
+	Price: number;
+	SellValue: number;
+};
 
 export enum ToolType {
 	None = 0,
@@ -32,6 +38,15 @@ export class Item {
 
 	static GetFromReigstry(name: string): Item | undefined {
 		return this.registry.find((item) => item.name === name);
+	}
+
+	static BuildFromJson(json: string): Item {
+		const objTable: JsonItem = HttpService.JSONDecode(json) as JsonItem;
+		return Item.BuildFromJsonItem(objTable);
+	}
+
+	static BuildFromJsonItem(jitem: JsonItem): Item {
+		return new Item(jitem.Name, jitem.Description, jitem.Price, jitem.SellValue);
 	}
 
 	constructor(name: string, description: string = "No description given.", price: number = 0, sellValue: number = 0) {
