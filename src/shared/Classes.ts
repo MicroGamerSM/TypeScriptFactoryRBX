@@ -34,7 +34,7 @@ export class Item {
 		return this.registry.find((item) => item.name === name);
 	}
 
-	constructor(name: string, description: string, price: number, sellValue: number) {
+	constructor(name: string, description: string = "No description given.", price: number = 0, sellValue: number = 0) {
 		this.name = name;
 		this.description = description;
 		this.price = price;
