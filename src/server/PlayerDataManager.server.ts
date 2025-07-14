@@ -1,5 +1,5 @@
-//#region Module Initializer
-import profiles from "./PlayerData";
+// //#region Module Initializer
+// import profiles from "./PlayerData";
 
-print(`The profiles dictionary is ${profiles.isEmpty() ? "" : "not"} empty`);
-//#endregion
+// print(`The profiles dictionary is ${profiles.isEmpty() ? "" : "not"} empty`);
+// //#endregion
