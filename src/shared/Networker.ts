@@ -49,7 +49,7 @@ type ServerFunctionCallback<I extends unknown[], O extends unknown[]> = (player:
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
  */
 export class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
-	private readonly event: RemoteEvent;
+	readonly remoteEvent: RemoteEvent;
 
 	/**
 	 * Fire the event to the server.
@@ -59,7 +59,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		this.event.FireServer(args);
+		this.remoteEvent.FireServer(args);
 	}
 
 	/**
@@ -71,7 +71,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
 		}
-		this.event.FireClient(player, args);
+		this.remoteEvent.FireClient(player, args);
 	}
 
 	/**
@@ -83,7 +83,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		const connection = this.event.OnClientEvent.Connect(callback);
+		const connection = this.remoteEvent.OnClientEvent.Connect(callback);
 		return () => {
 			if (!connection.Connected) {
 				return SuccessCase.Fail("Already unlinked");
@@ -104,7 +104,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		}
 
 		const connection = (
-			this.event.OnServerEvent as unknown as RBXScriptSignal<ServerEventCallback<ClientToServer>>
+			this.remoteEvent.OnServerEvent as unknown as RBXScriptSignal<ServerEventCallback<ClientToServer>>
 		).Connect(callback);
 		return () => {
 			if (!connection.Connected) {
@@ -152,7 +152,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 	}
 
 	private constructor(event: RemoteEvent) {
-		this.event = event;
+		this.remoteEvent = event;
 	}
 }
 
@@ -165,7 +165,7 @@ export class Function<
 	ServerToClient extends unknown[],
 	ClientBackToServer extends unknown[],
 > {
-	private readonly func: RemoteFunction;
+	readonly remoteFunction: RemoteFunction;
 
 	/**
 	 * Invoke the function on the server.
@@ -176,7 +176,7 @@ export class Function<
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		return this.func.InvokeServer(args);
+		return this.remoteFunction.InvokeServer(args);
 	}
 
 	/**
@@ -189,7 +189,7 @@ export class Function<
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
 		}
-		return this.func.InvokeClient(player, args) as unknown as ClientBackToServer;
+		return this.remoteFunction.InvokeClient(player, args) as unknown as ClientBackToServer;
 	}
 
 	/**
@@ -200,7 +200,7 @@ export class Function<
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		this.func.OnClientInvoke = callback;
+		this.remoteFunction.OnClientInvoke = callback;
 	}
 
 	/**
@@ -212,7 +212,7 @@ export class Function<
 			error("Can only link to server as the server", 2);
 		}
 		// fuck you type safety
-		this.func.OnServerInvoke = callback as unknown as
+		this.remoteFunction.OnServerInvoke = callback as unknown as
 			| ((player: Player, ...args: Array<unknown>) => void)
 			| undefined;
 	}
@@ -220,7 +220,7 @@ export class Function<
 	static readonly RequestNewEventFunction: Function<[string], [RemoteEvent], [], []> = new Function(
 		"core.requestnew.event",
 	);
-	static readonly RequestNewFunctionFunction: Function<[string], [RemoteEvent], [], []> = new Function(
+	static readonly RequestNewFunctionFunction: Function<[string], [RemoteFunction], [], []> = new Function(
 		"core.requestnew.function",
 	);
 
@@ -264,8 +264,8 @@ export class Function<
 			return this.BuildOrWaitFor<CTS, SBC, STC, CBS>(token);
 		} else {
 			// ask the server to create/find it, then grab the RemoteFunction it returns
-			const [remoteFunction] = this.RequestNewFunctionFunction.FireServer(token);
-			return new Function<CTS, SBC, STC, CBS>(remoteFunction.Name);
+			const remoteFunction = this.RequestNewFunctionFunction.FireServer(token)[0];
+			return new Function<CTS, SBC, STC, CBS>(remoteFunction);
 		}
 	}
 
@@ -284,9 +284,9 @@ export class Function<
 			} else {
 				tFunc = RouterFolder.WaitForChild(tokenOrFunction as string) as RemoteFunction;
 			}
-			this.func = tFunc;
+			this.remoteFunction = tFunc;
 		} else {
-			this.func = tokenOrFunction as RemoteFunction;
+			this.remoteFunction = tokenOrFunction as RemoteFunction;
 		}
 	}
 }
@@ -299,3 +299,12 @@ export class Function<
  * ❎S/C A -> S/C B
  * ❎S/C A -> S/C B -> S/C A
  */
+
+if (isServer) {
+	Function.RequestNewFunctionFunction.OnServerInvoke((player, token) => {
+		return [Function.GetFunction(token).remoteFunction];
+	});
+	Function.RequestNewEventFunction.OnServerInvoke((player, token) => {
+		return [Event.GetEvent(token).remoteEvent];
+	})
+}
