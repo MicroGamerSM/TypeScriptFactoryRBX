@@ -1,5 +1,5 @@
 //#region Setup
-import { SuccessCase } from "shared/Classes";
+import { SuccessCase } from "shared/SuccessCase";
 
 const Players = game.GetService("Players");
 const Workspace = game.GetService("Workspace");
