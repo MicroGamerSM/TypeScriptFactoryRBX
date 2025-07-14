@@ -8,14 +8,12 @@ const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
 
 let RouterFolder: Folder;
-let RemoteFunctions: Folder;
 if (isClient) {
 	RouterFolder = ReplicatedStorage.WaitForChild("Router") as Folder;
 } else if (isServer) {
 	let tRouterFolder = ReplicatedStorage.FindFirstChild("Router") as Folder | undefined;
 	if (tRouterFolder === undefined) {
 		tRouterFolder = new Instance("Folder", ReplicatedStorage);
-		RemoteFunctions = new Instance("Folder", tRouterFolder);
 	}
 	RouterFolder = tRouterFolder;
 }
@@ -40,7 +38,7 @@ type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => 
 /**
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
  */
-class Eventer<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
+class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
 	private readonly event: RemoteEvent;
 
 	/**
@@ -105,19 +103,26 @@ class Eventer<ClientToServer extends unknown[], ServerToClient extends unknown[]
 		let tEvent: RemoteEvent;
 
 		if (isServer) {
-			const xEvent = ReplicatedStorage.FindFirstChild(token) as RemoteEvent | undefined;
+			const xEvent = RouterFolder.FindFirstChild(token) as RemoteEvent | undefined;
 			if (xEvent === undefined) {
-				tEvent = new Instance("RemoteEvent", ReplicatedStorage);
+				tEvent = new Instance("RemoteEvent", RouterFolder);
 				tEvent.Name = token;
 			} else {
 				tEvent = xEvent;
 			}
 		} else {
-			tEvent = ReplicatedStorage.WaitForChild(token) as RemoteEvent;
+			tEvent = RouterFolder.WaitForChild(token) as RemoteEvent;
 		}
 		this.event = tEvent;
 	}
 }
+
+class Function<
+	ClientToServer extends unknown[],
+	ServerBackToClient extends unknown[],
+	ServerToClient extends unknown[],
+	ClientBackToServer extends unknown[],
+> {}
 
 /*
  * ✅Server -> Client
