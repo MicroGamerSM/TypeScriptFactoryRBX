@@ -220,22 +220,74 @@ class Function<
 	static readonly RequestNewEventFunction: Function<[string], [RemoteEvent], [], []> = new Function(
 		"core.requestnew.event",
 	);
+	static readonly RequestNewFunctionFunction: Function<[string], [RemoteEvent], [], []> = new Function(
+		"core.requestnew.function",
+	);
 
-	constructor(token: string) {
-		let tFunc: RemoteFunction;
+	/**
+	 * On the server, attempts to find the requested function, and builds one if that fails.
+	 * On the client, waits for the server to build the function if it cannot find it.
+	 * @param token The target function.
+	 * @returns The function object.
+	 */
+	static BuildOrWaitFor<CTS extends unknown[], SBC extends unknown[], STC extends unknown[], CBS extends unknown[]>(
+		token: string,
+	): Function<CTS, SBC, STC, CBS> {
+		let rf: RemoteFunction;
 
 		if (isServer) {
-			const xFunc = RouterFolder.FindFirstChild(token) as RemoteFunction | undefined;
-			if (xFunc === undefined) {
-				tFunc = new Instance("RemoteFunction", RouterFolder);
-				tFunc.Name = token;
+			const existing = RouterFolder.FindFirstChild(token) as RemoteFunction | undefined;
+			if (existing) {
+				rf = existing;
 			} else {
-				tFunc = xFunc;
+				rf = new Instance("RemoteFunction", RouterFolder) as RemoteFunction;
+				rf.Name = token;
 			}
 		} else {
-			tFunc = RouterFolder.WaitForChild(token) as RemoteFunction;
+			rf = RouterFolder.WaitForChild(token) as RemoteFunction;
 		}
-		this.func = tFunc;
+
+		// we need a private constructor that accepts an existing RemoteFunction
+		return new Function<CTS, SBC, STC, CBS>(rf);
+	}
+
+	/**
+	 * On the server, functions the same as BuildOrWaitFor().
+	 * On the client, asks the server to build the event or find the function.
+	 * @param token The target function.
+	 * @returns The function object.
+	 */
+	static GetFunction<CTS extends unknown[], SBC extends unknown[], STC extends unknown[], CBS extends unknown[]>(
+		token: string,
+	): Function<CTS, SBC, STC, CBS> {
+		if (isServer) {
+			return this.BuildOrWaitFor<CTS, SBC, STC, CBS>(token);
+		} else {
+			// ask the server to create/find it, then grab the RemoteFunction it returns
+			const [remoteFunction] = this.RequestNewFunctionFunction.FireServer(token);
+			return new Function<CTS, SBC, STC, CBS>(remoteFunction.Name);
+		}
+	}
+
+	private constructor(tokenOrFunction: string | RemoteFunction) {
+		if (typeOf(tokenOrFunction) === "string") {
+			let tFunc: RemoteFunction;
+
+			if (isServer) {
+				const xFunc = RouterFolder.FindFirstChild(tokenOrFunction as string) as RemoteFunction | undefined;
+				if (xFunc === undefined) {
+					tFunc = new Instance("RemoteFunction", RouterFolder);
+					tFunc.Name = tokenOrFunction as string;
+				} else {
+					tFunc = xFunc;
+				}
+			} else {
+				tFunc = RouterFolder.WaitForChild(tokenOrFunction as string) as RemoteFunction;
+			}
+			this.func = tFunc;
+		} else {
+			this.func = tokenOrFunction as RemoteFunction;
+		}
 	}
 }
 
