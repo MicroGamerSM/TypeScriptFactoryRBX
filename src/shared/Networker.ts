@@ -48,7 +48,7 @@ type ServerFunctionCallback<I extends unknown[], O extends unknown[]> = (player:
 /**
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
  */
-class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
+export class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
 	private readonly event: RemoteEvent;
 
 	/**
@@ -159,7 +159,7 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 /**
  * Wraps a RemoteFunction, to allow Server -> Client -> Server and Client -> Server -> Client communication.
  */
-class Function<
+export class Function<
 	ClientToServer extends unknown[],
 	ServerBackToClient extends unknown[],
 	ServerToClient extends unknown[],
