@@ -120,6 +120,9 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 	}
 }
 
+/**
+ * Wraps a RemoteFunction, to allow Server -> Client -> Server and Client -> Server -> Client communication.
+ */
 class Function<
 	ClientToServer extends unknown[],
 	ServerBackToClient extends unknown[],
@@ -128,18 +131,37 @@ class Function<
 > {
 	private readonly func: RemoteFunction;
 
+	/**
+	 * Invoke the function on the server.
+	 * @param args The data to pass to the server.
+	 * @returns The data passed from the server.
+	 */
 	FireServer(...args: ClientToServer): ServerBackToClient {
 		return this.func.InvokeServer(args);
 	}
 
+	/**
+	 * Invoke the function on a client.
+	 * @param player The client in question.
+	 * @param args The data to pass to the client.
+	 * @returns The data passed from the client.
+	 */
 	FireClient(player: Player, ...args: ServerToClient): ClientBackToServer {
 		return this.func.InvokeClient(player, args) as unknown as ClientBackToServer;
 	}
 
+	/**
+	 * Handles when the server invokes the client.
+	 * @param callback The callback to run.
+	 */
 	OnClientInvoke(callback: ClientFunctionCallback<ServerToClient, ClientBackToServer>) {
 		this.func.OnClientInvoke = callback;
 	}
 
+	/**
+	 * Handles when a client invokes the serrver.
+	 * @param callback The callback to run.
+	 */
 	OnServerInvoke(callback: ServerFunctionCallback<ClientToServer, ServerBackToClient>) {
 		// fuck you type safety
 		this.func.OnServerInvoke = callback as unknown as
