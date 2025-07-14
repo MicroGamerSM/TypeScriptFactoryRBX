@@ -1,6 +1,7 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
-import Network from "shared/Networker";
+import { Event } from "shared/Networker";
+// import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
 const DataStore = RunService.IsStudio() ? "Development" : "Production";
@@ -10,6 +11,8 @@ const Players = game.GetService("Players");
 const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
 const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
+
+const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
 
 Players.PlayerAdded.Connect((player) => {
 	task.spawn(() => {
@@ -25,8 +28,7 @@ Players.PlayerAdded.Connect((player) => {
 		// Optionally react to saves or network events:
 		profile.OnSave.Connect(() => {
 			print(`Saved data for ${player.DisplayName}`);
-			Network.SendToClient("datastore.saved", player);
-			Network.SendToClient("notification", player, "Your data has been auto-saved.");
+			NotifyEvent.FireClient(player, "Your data has been auto-saved.");
 		});
 
 		// When player leaves:

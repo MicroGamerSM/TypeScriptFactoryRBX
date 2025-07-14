@@ -1,4 +1,4 @@
-import Network from "shared/Networker";
+import { Event } from "shared/Networker";
 
 const TextChatService = game.GetService("TextChatService");
 
@@ -6,6 +6,8 @@ const TextChannels: Folder = TextChatService.WaitForChild("TextChannels") as Fol
 
 const General: TextChannel = TextChannels.WaitForChild("RBXGeneral") as TextChannel;
 
-Network.OnClientReceive("notification", (message) => {
-	General.DisplaySystemMessage(message as string);
+const NotifyEvent: Event<[], [string, string | undefined]> = Event.GetEvent("notify");
+
+NotifyEvent.OnClientInvoke((text: string, label: string | undefined) => {
+	General.DisplaySystemMessage(`${label === undefined ? "" : `[${label}]: `} ${text}`);
 });
