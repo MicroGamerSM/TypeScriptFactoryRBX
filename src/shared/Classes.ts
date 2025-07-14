@@ -277,6 +277,7 @@ export function BuildDefaultPlayerData(): IPlayerData {
 	};
 }
 
+//#region World Data
 const GetWorldFunction: Function<[], [WorldData], [], []> = Function.GetFunction("http.world");
 
 if (isServer)
@@ -295,3 +296,4 @@ try {
 		e,
 	);
 }
+//#endregion
