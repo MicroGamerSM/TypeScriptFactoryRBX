@@ -1,44 +1,46 @@
-// import ProfileStore, { Profile } from "@rbxts/profile-store";
-// import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
+import ProfileStore, { Profile } from "@rbxts/profile-store";
+import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
+import { Event } from "shared/Networker";
 // import Router from "shared/Router";
 
-// const RunService = game.GetService("RunService");
-// const DataStore = RunService.IsStudio() ? "Development" : "Production";
+const RunService = game.GetService("RunService");
+const DataStore = RunService.IsStudio() ? "Development" : "Production";
 
-// const Players = game.GetService("Players");
+const Players = game.GetService("Players");
 
-// const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
+const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
-// const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
+const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
 
-// Players.PlayerAdded.Connect((player) => {
-// 	task.spawn(() => {
-// 		const profile = store.StartSessionAsync(`Pds${player.UserId}`, {
-// 			Cancel: () => player.Parent === undefined,
-// 		});
+const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
 
-// 		if (!profile) {
-// 			player.Kick("Could not load data. Try again later.");
-// 			return;
-// 		}
+Players.PlayerAdded.Connect((player) => {
+	task.spawn(() => {
+		const profile = store.StartSessionAsync(`Pds${player.UserId}`, {
+			Cancel: () => player.Parent === undefined,
+		});
 
-// 		// Optionally react to saves or network events:
-// 		profile.OnSave.Connect(() => {
-// 			print(`Saved data for ${player.DisplayName}`);
-// 			Router.SendToClient("datastore.saved", player);
-// 			Router.SendToClient("notification", player, "Your data has been auto-saved.");
-// 		});
+		if (!profile) {
+			player.Kick("Could not load data. Try again later.");
+			return;
+		}
 
-// 		// When player leaves:
-// 		player.AncestryChanged.Connect((_, parent) => {
-// 			if (!parent) {
-// 				profile.EndSession(); // flush and release
-// 				profiles.delete(player);
-// 			}
-// 		});
+		// Optionally react to saves or network events:
+		profile.OnSave.Connect(() => {
+			print(`Saved data for ${player.DisplayName}`);
+			NotifyEvent.FireClient(player, "Your data has been auto-saved.");
+		});
 
-// 		profiles.set(player, profile);
-// 	});
-// });
+		// When player leaves:
+		player.AncestryChanged.Connect((_, parent) => {
+			if (!parent) {
+				profile.EndSession(); // flush and release
+				profiles.delete(player);
+			}
+		});
 
-// export default profiles;
+		profiles.set(player, profile);
+	});
+});
+
+export default profiles;
