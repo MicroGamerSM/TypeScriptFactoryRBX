@@ -24,21 +24,10 @@ if (isClient) {
 /**
  * Routes messages between scripts.
  */
-class Router {
-	static RequestFromServer(token: string, ...args: unknown[]): ValueSuccessCase<unknown[] | undefined> {
-		const event: RemoteFunction | undefined = RemoteFunctions.FindFirstChild(token) as RemoteFunction | undefined;
-		if (event === undefined) {
-			return ValueSuccessCase.Fail(`No C->S->C of type ${token} was found`, undefined);
-		}
-		return ValueSuccessCase.Ok("Got data from server.", event.InvokeServer(...args));
-	}
-}
-
 /**
  * Represents a function to unlink an event.
  */
 type Unlinker = () => SuccessCase;
-
 /**
  * Represents a client's callback for an event.
  */
@@ -48,17 +37,34 @@ type ClientEventCallback<I extends unknown[]> = (...args: I) => undefined;
  */
 type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => undefined;
 
+/**
+ * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
+ */
 class Eventer<ClientToServer extends unknown[], ServerToClient extends unknown[]> {
 	private readonly event: RemoteEvent;
 
+	/**
+	 * Fire the event to the server.
+	 * @param args The arguments to pass to the server.
+	 */
 	FireServer(...args: ClientToServer) {
 		this.event.FireServer(args);
 	}
 
+	/**
+	 * Fire the event to a client.
+	 * @param player The client to trigger the event for.
+	 * @param args The arguments to pass to the client.
+	 */
 	FireClient(player: Player, ...args: ServerToClient) {
 		this.event.FireClient(player, args);
 	}
 
+	/**
+	 * Handles when the server sends a message to the current client.
+	 * @param callback The function to call.
+	 * @returns An unlinker to disconnect the callback.
+	 */
 	OnClient(callback: ClientEventCallback<ServerToClient>): Unlinker {
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
@@ -73,6 +79,11 @@ class Eventer<ClientToServer extends unknown[], ServerToClient extends unknown[]
 		};
 	}
 
+	/**
+	 * Handles when a client sends a message to the server.
+	 * @param callback The function to call.
+	 * @returns An unlinker to disconnect the callback.
+	 */
 	OnServer(callback: ServerEventCallback<ClientToServer>) {
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
@@ -108,12 +119,11 @@ class Eventer<ClientToServer extends unknown[], ServerToClient extends unknown[]
 	}
 }
 
-export default Router;
 /*
- * Server -> Client
- * Server -> Client -> Server
- * Client -> Server
- * Client -> Server -> Client
- * S/C A -> S/C B
- * S/C A -> S/C B -> S/C A
+ * ✅Server -> Client
+ * ❎Server -> Client -> Server
+ * ✅Client -> Server
+ * ❎Client -> Server -> Client
+ * ❎S/C A -> S/C B
+ * ❎S/C A -> S/C B -> S/C A
  */
