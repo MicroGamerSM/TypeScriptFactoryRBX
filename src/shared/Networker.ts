@@ -115,7 +115,13 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 		};
 	}
 
-	constructor(token: string) {
+	/**
+	 * On the server, attempts to find the requested event, and builds one if that fails.
+	 * On the client, waits for the server to build the event if it cannot find it.
+	 * @param token The target event.
+	 * @returns The event object.
+	 */
+	static BuildOrWaitFor<I extends unknown[], O extends unknown[]>(token: string): Event<I, O> {
 		let tEvent: RemoteEvent;
 
 		if (isServer) {
@@ -129,7 +135,24 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 		} else {
 			tEvent = RouterFolder.WaitForChild(token) as RemoteEvent;
 		}
-		this.event = tEvent;
+		return new Event(tEvent);
+	}
+
+	/**
+	 * On the server, functions the same as BuildOrWaitFor().
+	 * On the client, asks the server to build the event or find the event.
+	 * @param token The target event.
+	 * @returns The event object.
+	 */
+	static GetEvent<I extends unknown[], O extends unknown[]>(token: string) {
+		if (isServer) {
+			return this.BuildOrWaitFor<I, O>(token);
+		}
+		return new Event<I, O>(Function.RequestNewEventFunction.FireServer(token)[0]);
+	}
+
+	private constructor(event: RemoteEvent) {
+		this.event = event;
 	}
 }
 
