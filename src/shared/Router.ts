@@ -35,6 +35,9 @@ type ClientEventCallback<I extends unknown[]> = (...args: I) => undefined;
  */
 type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => undefined;
 
+type ClientFunctionCallback<I extends unknown[], O extends unknown[]> = (...args: I) => O;
+type ServerFunctionCallback<I extends unknown[], O extends unknown[]> = (player: Player, ...args: I) => O;
+
 /**
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
  */
@@ -63,7 +66,7 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 	 * @param callback The function to call.
 	 * @returns An unlinker to disconnect the callback.
 	 */
-	OnClient(callback: ClientEventCallback<ServerToClient>): Unlinker {
+	OnClientInvoke(callback: ClientEventCallback<ServerToClient>): Unlinker {
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
@@ -82,7 +85,7 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 	 * @param callback The function to call.
 	 * @returns An unlinker to disconnect the callback.
 	 */
-	OnServer(callback: ServerEventCallback<ClientToServer>) {
+	OnServerInvoke(callback: ServerEventCallback<ClientToServer>) {
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
 		}
@@ -122,13 +125,51 @@ class Function<
 	ServerBackToClient extends unknown[],
 	ServerToClient extends unknown[],
 	ClientBackToServer extends unknown[],
-> {}
+> {
+	private readonly func: RemoteFunction;
+
+	FireServer(...args: ClientToServer): ServerBackToClient {
+		return this.func.InvokeServer(args);
+	}
+
+	FireClient(player: Player, ...args: ServerToClient): ClientBackToServer {
+		return this.func.InvokeClient(player, args) as unknown as ClientBackToServer;
+	}
+
+	OnClientInvoke(callback: ClientFunctionCallback<ServerToClient, ClientBackToServer>) {
+		this.func.OnClientInvoke = callback;
+	}
+
+	OnServerInvoke(callback: ServerFunctionCallback<ClientToServer, ServerBackToClient>) {
+		// fuck you type safety
+		this.func.OnServerInvoke = callback as unknown as
+			| ((player: Player, ...args: Array<unknown>) => void)
+			| undefined;
+	}
+
+	constructor(token: string) {
+		let tFunc: RemoteFunction;
+
+		if (isServer) {
+			const xFunc = RouterFolder.FindFirstChild(token) as RemoteFunction | undefined;
+			if (xFunc === undefined) {
+				tFunc = new Instance("RemoteFunction", RouterFolder);
+				tFunc.Name = token;
+			} else {
+				tFunc = xFunc;
+			}
+		} else {
+			tFunc = RouterFolder.WaitForChild(token) as RemoteFunction;
+		}
+		this.func = tFunc;
+	}
+}
 
 /*
  * ✅Server -> Client
- * ❎Server -> Client -> Server
+ * ✅Server -> Client -> Server
  * ✅Client -> Server
- * ❎Client -> Server -> Client
+ * ✅Client -> Server -> Client
  * ❎S/C A -> S/C B
  * ❎S/C A -> S/C B -> S/C A
  */
