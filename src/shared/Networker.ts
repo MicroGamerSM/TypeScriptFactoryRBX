@@ -19,6 +19,7 @@ if (isClient) {
 }
 //#endregion
 
+//#region Helper Types
 /**
  * Routes messages between scripts.
  */
@@ -34,9 +35,15 @@ type ClientEventCallback<I extends unknown[]> = (...args: I) => undefined;
  * Represents a server's callback for an event.
  */
 type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => undefined;
-
+/**
+ * Represents a client's callback for a function.
+ */
 type ClientFunctionCallback<I extends unknown[], O extends unknown[]> = (...args: I) => O;
+/**
+ * Represents a server's callback for a function.
+ */
 type ServerFunctionCallback<I extends unknown[], O extends unknown[]> = (player: Player, ...args: I) => O;
+//#endregion
 
 /**
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
@@ -49,6 +56,9 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 	 * @param args The arguments to pass to the server.
 	 */
 	FireServer(...args: ClientToServer) {
+		if (!isClient) {
+			error("Can only link to client as the client", 2);
+		}
 		this.event.FireServer(args);
 	}
 
@@ -58,6 +68,9 @@ class Event<ClientToServer extends unknown[], ServerToClient extends unknown[]> 
 	 * @param args The arguments to pass to the client.
 	 */
 	FireClient(player: Player, ...args: ServerToClient) {
+		if (!isServer) {
+			error("Can only link to server as the server", 2);
+		}
 		this.event.FireClient(player, args);
 	}
 
@@ -137,6 +150,9 @@ class Function<
 	 * @returns The data passed from the server.
 	 */
 	FireServer(...args: ClientToServer): ServerBackToClient {
+		if (!isClient) {
+			error("Can only link to client as the client", 2);
+		}
 		return this.func.InvokeServer(args);
 	}
 
@@ -147,6 +163,9 @@ class Function<
 	 * @returns The data passed from the client.
 	 */
 	FireClient(player: Player, ...args: ServerToClient): ClientBackToServer {
+		if (!isServer) {
+			error("Can only link to server as the server", 2);
+		}
 		return this.func.InvokeClient(player, args) as unknown as ClientBackToServer;
 	}
 
@@ -155,6 +174,9 @@ class Function<
 	 * @param callback The callback to run.
 	 */
 	OnClientInvoke(callback: ClientFunctionCallback<ServerToClient, ClientBackToServer>) {
+		if (!isClient) {
+			error("Can only link to client as the client", 2);
+		}
 		this.func.OnClientInvoke = callback;
 	}
 
@@ -163,11 +185,18 @@ class Function<
 	 * @param callback The callback to run.
 	 */
 	OnServerInvoke(callback: ServerFunctionCallback<ClientToServer, ServerBackToClient>) {
+		if (!isServer) {
+			error("Can only link to server as the server", 2);
+		}
 		// fuck you type safety
 		this.func.OnServerInvoke = callback as unknown as
 			| ((player: Player, ...args: Array<unknown>) => void)
 			| undefined;
 	}
+
+	static readonly RequestNewEventFunction: Function<[string], [RemoteEvent], [], []> = new Function(
+		"core.requestnew.event",
+	);
 
 	constructor(token: string) {
 		let tFunc: RemoteFunction;
