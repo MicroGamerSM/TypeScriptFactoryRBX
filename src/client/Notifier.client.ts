@@ -1,4 +1,4 @@
-import Network from "shared/Networker";
+import Network from "shared/Router";
 
 const TextChatService = game.GetService("TextChatService");
 
