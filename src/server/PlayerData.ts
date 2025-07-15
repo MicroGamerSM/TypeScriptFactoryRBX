@@ -45,8 +45,23 @@ function setupPlayer(player: Player) {
 			}
 		});
 
+		const Leaderstats = new Instance("Folder", player);
+		Leaderstats.Name = "leaderstats";
+
+		const MoneyValue = new Instance("NumberValue", Leaderstats);
+		MoneyValue.Name = "Money";
+		MoneyValue.Value = profile.Data.money;
+
+		const pd = new PlayerDetails(profile, player);
+
+		pd.Changed((key, oldValue, newValue) => {
+			if (key === "money") {
+				MoneyValue.Value = newValue;
+			}
+		});
+
 		profiles.set(player, profile);
-		data.set(player.UserId, new PlayerDetails(profile, player));
+		data.set(player.UserId, pd);
 	});
 }
 
