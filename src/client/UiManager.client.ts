@@ -63,5 +63,5 @@ AllUpdatedEvent.OnClientInvoke((money) => {
 
 MoneyUpdatedEvent.OnClientInvoke((money) => UpdateMoney(money));
 
-wait(10);
+wait(1);
 UpdateAll(...RequestUpdateFunction.FireServer());

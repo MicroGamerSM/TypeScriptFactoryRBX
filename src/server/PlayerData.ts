@@ -64,5 +64,4 @@ RequestUpdateFunction.OnServerInvoke((player) => {
 	return values;
 });
 
-
 Players.GetPlayers().forEach(setupPlayer);
