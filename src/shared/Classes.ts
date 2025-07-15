@@ -129,8 +129,14 @@ export abstract class Observable<T extends object> {
 		}
 
 		// 2. Install metatable to observe changes
-		return setmetatable(this, {
-			__index: (thisObject, key) => rawget(thisObject, key),
+		setmetatable(this, {
+			__index: (thisObject, key) => {
+				const thisData = rawget(thisObject, key);
+				if (thisData === undefined) {
+					return rawget(Observable, key);
+				}
+				return thisData;
+			},
 			__newindex: (thisObject, key, value) => {
 				const oldValue = rawget(thisObject, key);
 				if (oldValue !== value) {
@@ -140,7 +146,7 @@ export abstract class Observable<T extends object> {
 					}
 				}
 			},
-		}) as never;
+		});
 	}
 }
 

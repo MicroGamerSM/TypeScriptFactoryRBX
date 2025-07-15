@@ -1,6 +1,6 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
-import { Event } from "shared/Networker";
+import { Event, Function } from "shared/Networker";
 // import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
@@ -11,11 +11,13 @@ const Players = game.GetService("Players");
 const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
 export const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
-export const data: Map<Player, PlayerDetails> = new Map();
+export const data: Map<number, PlayerDetails> = new Map();
 
 const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
 
-Players.PlayerAdded.Connect((player) => {
+const RequestUpdateFunction: Function<[], [number], [], []> = Function.GetFunction("update.money");
+
+function setupPlayer(player: Player) {
 	task.spawn(() => {
 		const profile = store.StartSessionAsync(`Pds${player.UserId}`, {
 			Cancel: () => player.Parent === undefined,
@@ -25,6 +27,8 @@ Players.PlayerAdded.Connect((player) => {
 			player.Kick("Could not load data. Try again later.");
 			return;
 		}
+
+		profile.Reconcile();
 
 		// Optionally react to saves or network events:
 		profile.OnSave.Connect(() => {
@@ -37,11 +41,35 @@ Players.PlayerAdded.Connect((player) => {
 			if (!parent) {
 				profile.EndSession(); // flush and release
 				profiles.delete(player);
-				data.delete(player);
+				data.delete(player.UserId);
 			}
 		});
 
 		profiles.set(player, profile);
-		data.set(player, new PlayerDetails(profile, player));
+		data.set(player.UserId, new PlayerDetails(profile, player));
 	});
+}
+
+Players.PlayerAdded.Connect((player) => {
+	setupPlayer(player);
 });
+
+RequestUpdateFunction.OnServerInvoke((player) => {
+	const Details = data.get(player.UserId);
+	if (Details === undefined) {
+		warn(`Failed to get details for ${player.DisplayName}!`);
+		return [34401];
+	}
+	print(Details);
+	const values: [number] = [Details.money];
+	print(values);
+	return values;
+});
+
+const ok = true;
+while (ok) {
+	wait(1);
+	print(data);
+}
+
+Players.GetPlayers().forEach(setupPlayer);

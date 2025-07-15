@@ -125,15 +125,15 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		let tEvent: RemoteEvent;
 
 		if (isServer) {
-			const xEvent = RouterFolder.FindFirstChild(token) as RemoteEvent | undefined;
+			const xEvent = RouterFolder.FindFirstChild(`E.${token}`) as RemoteEvent | undefined;
 			if (xEvent === undefined) {
 				tEvent = new Instance("RemoteEvent", RouterFolder);
-				tEvent.Name = token;
+				tEvent.Name = `E.${token}`;
 			} else {
 				tEvent = xEvent;
 			}
 		} else {
-			tEvent = RouterFolder.WaitForChild(token) as RemoteEvent;
+			tEvent = RouterFolder.WaitForChild(`E.${token}`) as RemoteEvent;
 		}
 		return new Event(tEvent);
 	}
@@ -236,15 +236,15 @@ export class Function<
 		let rf: RemoteFunction;
 
 		if (isServer) {
-			const existing = RouterFolder.FindFirstChild(token) as RemoteFunction | undefined;
+			const existing = RouterFolder.FindFirstChild(`F.${token}`) as RemoteFunction | undefined;
 			if (existing) {
 				rf = existing;
 			} else {
 				rf = new Instance("RemoteFunction", RouterFolder) as RemoteFunction;
-				rf.Name = token;
+				rf.Name = `F.${token}`;
 			}
 		} else {
-			rf = RouterFolder.WaitForChild(token) as RemoteFunction;
+			rf = RouterFolder.WaitForChild(`F.${token}`) as RemoteFunction;
 		}
 
 		// we need a private constructor that accepts an existing RemoteFunction
