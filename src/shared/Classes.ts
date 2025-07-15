@@ -1,5 +1,5 @@
 import { Profile } from "@rbxts/profile-store";
-import { Function } from "./Networker";
+import { Event, Function } from "./Networker";
 import { SuccessCase, ValueSuccessCase } from "./SuccessCase";
 
 const HttpService = game.GetService("HttpService");
@@ -10,6 +10,8 @@ const RunService = game.GetService("RunService");
 
 const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
+
+const MoneyUpdatedEvent: Event<[], [number]> = Event.GetEvent("update.money");
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
@@ -247,7 +249,7 @@ export class PlayerDetails extends Observable<IPlayerData> implements IPlayerDat
 	shovelTool: ToolType;
 	shovelLostDurability: number;
 
-	constructor(source: Profile<IPlayerData, object>) {
+	constructor(source: Profile<IPlayerData, object>, player: Player) {
 		super(source.Data);
 		this.money = source.Data.money;
 		this.axeTool = source.Data.axeTool;
@@ -257,9 +259,19 @@ export class PlayerDetails extends Observable<IPlayerData> implements IPlayerDat
 		this.shovelTool = source.Data.shovelTool;
 		this.shovelLostDurability = source.Data.shovelLostDurability;
 
+		if (isClient)
+			error(
+				"Cannot create PlayerDetails on client. Ask the server for a readonly reference (get.playerdata).",
+				2,
+			);
+
 		this.Changed((key, oldV, newV) => {
 			if (source.IsActive()) source.Data[key] = newV;
 			else warn("Using PlayerDetails after Profile is disabled!");
+
+			if (key === "money") {
+				MoneyUpdatedEvent.FireClient(player, this.money);
+			}
 		});
 	}
 }

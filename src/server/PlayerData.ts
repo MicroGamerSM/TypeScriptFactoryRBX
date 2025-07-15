@@ -1,5 +1,5 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
-import { BuildDefaultPlayerData, IPlayerData } from "shared/Classes";
+import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
 import { Event } from "shared/Networker";
 // import Router from "shared/Router";
 
@@ -10,7 +10,8 @@ const Players = game.GetService("Players");
 
 const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
-const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
+export const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
+export const data: Map<Player, PlayerDetails> = new Map();
 
 const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
 
@@ -36,11 +37,11 @@ Players.PlayerAdded.Connect((player) => {
 			if (!parent) {
 				profile.EndSession(); // flush and release
 				profiles.delete(player);
+				data.delete(player);
 			}
 		});
 
 		profiles.set(player, profile);
+		data.set(player, new PlayerDetails(profile, player));
 	});
 });
-
-export default profiles;

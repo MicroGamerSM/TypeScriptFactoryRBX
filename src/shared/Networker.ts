@@ -30,11 +30,11 @@ type Unlinker = () => SuccessCase;
 /**
  * Represents a client's callback for an event.
  */
-type ClientEventCallback<I extends unknown[]> = (...args: I) => undefined;
+type ClientEventCallback<I extends unknown[]> = (...args: I) => undefined | void;
 /**
  * Represents a server's callback for an event.
  */
-type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => undefined;
+type ServerEventCallback<I extends unknown[]> = (player: Player, ...args: I) => undefined | void;
 /**
  * Represents a client's callback for a function.
  */
