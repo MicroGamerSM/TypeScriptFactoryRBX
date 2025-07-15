@@ -1,6 +1,6 @@
 import { Profile } from "@rbxts/profile-store";
 import { Event, Function } from "./Networker";
-import { SuccessCase, ValueSuccessCase } from "./SuccessCase";
+import { SuccessCase } from "./SuccessCase";
 
 const HttpService = game.GetService("HttpService");
 const WORLD_DATA_SOURCE_URL =
