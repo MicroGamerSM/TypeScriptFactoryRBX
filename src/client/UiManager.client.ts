@@ -1,6 +1,6 @@
 import { Event, Function } from "shared/Networker";
 
-const RunService = game.GetService("RunService");
+const TweenService = game.GetService("TweenService");
 
 type BaseUi = ScreenGui & {
 	Area: Frame & {
@@ -9,9 +9,20 @@ type BaseUi = ScreenGui & {
 			MoreButton: TextButton & {
 				CanvasGroup: CanvasGroup & {
 					UIListLayout: UIListLayout;
+					About: TextButton;
 				};
 			};
 			MoneyLabel: TextLabel;
+		};
+		About: Frame & {
+			PrimaryButtonGroup: CanvasGroup & {
+				Close: TextButton;
+			};
+			ContentArea: CanvasGroup & {
+				Content: ScrollingFrame & {
+					TextLabel: TextLabel;
+				};
+			};
 		};
 	};
 };
@@ -62,6 +73,22 @@ AllUpdatedEvent.OnClientInvoke((money) => {
 });
 
 MoneyUpdatedEvent.OnClientInvoke((money) => UpdateMoney(money));
+
+let MoreOptionsOpen: boolean = false;
+BaseUi.Area.Hotbar.MoreButton.Activated.Connect(() => {
+	MoreOptionsOpen = !MoreOptionsOpen;
+	const targetPosition = new UDim2(MoreOptionsOpen ? 1 : 5, 8, 0, -13);
+	const tweenInfo = new TweenInfo(0.333, Enum.EasingStyle.Quad, Enum.EasingDirection.Out);
+	const tween = TweenService.Create(BaseUi.Area.Hotbar.MoreButton.CanvasGroup, tweenInfo, {
+		Position: targetPosition,
+	});
+
+	tween.Play();
+});
+
+BaseUi.Area.Hotbar.MoreButton.CanvasGroup.About.Activated.Connect(() => {
+	BaseUi.Area.About.Visible = !BaseUi.Area.About.Visible;
+});
 
 wait(1);
 UpdateAll(...RequestUpdateFunction.FireServer());
