@@ -60,16 +60,9 @@ RequestUpdateFunction.OnServerInvoke((player) => {
 		warn(`Failed to get details for ${player.DisplayName}!`);
 		return [34401];
 	}
-	print(Details);
 	const values: [number] = [Details.money];
-	print(values);
 	return values;
 });
 
-const ok = true;
-while (ok) {
-	wait(1);
-	print(data);
-}
 
 Players.GetPlayers().forEach(setupPlayer);
