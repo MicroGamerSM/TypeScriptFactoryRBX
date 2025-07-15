@@ -1,3 +1,4 @@
+import { PlayerDetails } from "shared/Classes";
 import { Event, Function } from "shared/Networker";
 
 const TweenService = game.GetService("TweenService");
@@ -55,24 +56,22 @@ const BaseUi: BaseUi = game
 	.LocalPlayer.WaitForChild("PlayerGui")
 	.WaitForChild("BaseGui") as BaseUi;
 
-const AllUpdatedEvent: Event<[], [number]> = Event.GetEvent("update.all");
+const AllUpdatedEvent: Event<[], [PlayerDetails]> = Event.GetEvent("update.all");
 const MoneyUpdatedEvent: Event<[], [number]> = Event.GetEvent("update.money");
 
-const RequestUpdateFunction: Function<[], [number], [], []> = Function.GetFunction("update.money");
+const RequestUpdateFunction: Function<[], [PlayerDetails], [], []> = Function.GetFunction("update.money");
 
-function UpdateAll(money: number) {
-	UpdateMoney(money);
+function UpdateAll(details: PlayerDetails) {
+	UpdateMoney(details.money);
 }
 
 function UpdateMoney(money: number) {
 	BaseUi.Area.Hotbar.MoneyLabel.Text = `$${formatNumber(money)}`;
 }
 
-AllUpdatedEvent.OnClientInvoke((money) => {
-	UpdateMoney(money);
-});
+AllUpdatedEvent.OnClientInvoke(UpdateAll);
 
-MoneyUpdatedEvent.OnClientInvoke((money) => UpdateMoney(money));
+MoneyUpdatedEvent.OnClientInvoke(UpdateMoney);
 
 let MoreOptionsOpen: boolean = false;
 BaseUi.Area.Hotbar.MoreButton.Activated.Connect(() => {

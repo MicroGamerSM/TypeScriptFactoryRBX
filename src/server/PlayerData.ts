@@ -15,7 +15,7 @@ export const data: Map<number, PlayerDetails> = new Map();
 
 const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
 
-const RequestUpdateFunction: Function<[], [number], [], []> = Function.GetFunction("update.money");
+const RequestUpdateFunction: Function<[], [PlayerDetails], [], []> = Function.GetFunction("update.money");
 
 function setupPlayer(player: Player) {
 	task.spawn(() => {
@@ -69,14 +69,24 @@ Players.PlayerAdded.Connect((player) => {
 	setupPlayer(player);
 });
 
-RequestUpdateFunction.OnServerInvoke((player) => {
-	const Details = data.get(player.UserId);
-	if (Details === undefined) {
-		warn(`Failed to get details for ${player.DisplayName}!`);
-		return [34401];
+function GetPlayerData(player: Player): [PlayerDetails] {
+	function core(ind: number): PlayerDetails {
+		if (ind === 0) {
+			error("Exited GPD loop!");
+		}
+		return (
+			data.get(player.UserId) ??
+			(() => {
+				warn(`GPD loop index ${ind} failed to fetch player data.`);
+				wait(1);
+				return core(ind--);
+			})()
+		);
 	}
-	const values: [number] = [Details.money];
-	return values;
-});
+
+	return [core(25)];
+}
+
+RequestUpdateFunction.OnServerInvoke(GetPlayerData);
 
 Players.GetPlayers().forEach(setupPlayer);
