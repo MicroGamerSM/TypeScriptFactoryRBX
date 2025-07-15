@@ -59,7 +59,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		this.remoteEvent.FireServer(args);
+		this.remoteEvent.FireServer(...args);
 	}
 
 	/**
@@ -71,7 +71,7 @@ export class Event<ClientToServer extends unknown[], ServerToClient extends unkn
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
 		}
-		this.remoteEvent.FireClient(player, args);
+		this.remoteEvent.FireClient(player, ...args);
 	}
 
 	/**
@@ -176,7 +176,7 @@ export class Function<
 		if (!isClient) {
 			error("Can only link to client as the client", 2);
 		}
-		return this.remoteFunction.InvokeServer(args);
+		return this.remoteFunction.InvokeServer(...args);
 	}
 
 	/**
@@ -189,7 +189,7 @@ export class Function<
 		if (!isServer) {
 			error("Can only link to server as the server", 2);
 		}
-		return this.remoteFunction.InvokeClient(player, args) as unknown as ClientBackToServer;
+		return this.remoteFunction.InvokeClient(player, ...args) as unknown as ClientBackToServer;
 	}
 
 	/**
@@ -292,12 +292,12 @@ export class Function<
 }
 
 /*
- * ✅Server -> Client
- * ✅Server -> Client -> Server
- * ✅Client -> Server
- * ✅Client -> Server -> Client
- * ❎S/C A -> S/C B
- * ❎S/C A -> S/C B -> S/C A
+ * ✅ Server -> Client
+ * ✅ Server -> Client -> Server
+ * ✅ Client -> Server
+ * ✅ Client -> Server -> Client
+ * ❎ S/C A -> S/C B
+ * ❎ S/C A -> S/C B -> S/C A
  */
 
 if (isServer) {
