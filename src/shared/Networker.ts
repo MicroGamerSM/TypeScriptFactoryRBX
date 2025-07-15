@@ -306,5 +306,5 @@ if (isServer) {
 	});
 	Function.RequestNewEventFunction.OnServerInvoke((player, token) => {
 		return [Event.GetEvent(token).remoteEvent];
-	})
+	});
 }
