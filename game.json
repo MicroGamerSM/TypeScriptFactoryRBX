@@ -1,0 +1,34 @@
+{
+   "items": [
+      {
+         "id": "log.oak",
+         "name": "Oak Log",
+         "description": "A log from an oak tree.",
+         "tags": ["log"]
+      },
+      {
+         "id": "pillar",
+         "name": "Pillar",
+         "description": "The core of a log.",
+         "tags": []
+      }
+   ],
+   "recipies": [
+      {
+         "type": "sawing",
+         "inputs": {
+            "#log": 1
+         },
+         "outputs": {
+            "pillar": 1
+         }
+      }
+   ],
+   "sellPoints": [
+      {
+         "item": "log.oak",
+         "value": 3,
+         "name": "carpenter log.oak"
+      }
+   ]
+}
