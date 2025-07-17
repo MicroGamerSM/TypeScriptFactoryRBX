@@ -89,5 +89,9 @@ BaseUi.Area.Hotbar.MoreButton.CanvasGroup.About.Activated.Connect(() => {
 	BaseUi.Area.About.Visible = !BaseUi.Area.About.Visible;
 });
 
+BaseUi.Area.About.PrimaryButtonGroup.Close.Activated.Connect(() => {
+	BaseUi.Area.About.Visible = false;
+});
+
 wait(1);
 UpdateAll(...RequestUpdateFunction.FireServer());
