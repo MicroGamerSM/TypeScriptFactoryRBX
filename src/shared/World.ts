@@ -1,5 +1,5 @@
-import JSONItem from "./json/item";
-import JSONRecipe from "./json/recipe";
+import JSONItem from "./json/Item";
+import JSONRecipe from "./json/Recipe";
 
 export class Item {
 	readonly id: string;
