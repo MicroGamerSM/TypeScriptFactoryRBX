@@ -1,5 +1,5 @@
 import { SuccessCase, ValueSuccessCase } from "./SuccessCase";
-import { Item } from "./World";
+import { Item, Recipe } from "./World";
 
 export default class Registry {
 	private static readonly items: Item[] = [];
@@ -19,5 +19,24 @@ export default class Registry {
 		}
 
 		return ValueSuccessCase.Fail("Could not find item by ID.", undefined);
+	}
+
+	private static readonly recipies: Recipe[] = [];
+
+	static AddRecipe(recipe: Recipe): SuccessCase {
+		if (this.recipies.find((value) => value.id === recipe.id)) {
+			return SuccessCase.Fail("Already exists by ID.");
+		}
+		this.recipies.push(recipe);
+		return SuccessCase.Ok("Added to registry.");
+	}
+
+	static GetRecipe(id: string): ValueSuccessCase<Recipe | undefined> {
+		const recipe = this.recipies.find((value) => value.id === id);
+		if (recipe !== undefined) {
+			return ValueSuccessCase.Ok("Recipe found by ID.", recipe);
+		}
+
+		return ValueSuccessCase.Fail("Could not find recipe by ID.", undefined);
 	}
 }
