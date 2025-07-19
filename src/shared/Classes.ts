@@ -40,69 +40,6 @@ export enum ToolType {
 	Iron = 4,
 }
 
-export class Item {
-	readonly name: string;
-	readonly description: string;
-	readonly price: number;
-	readonly sellValue: number;
-	readonly tags: string[];
-
-	CanSell(): boolean {
-		return this.sellValue !== 0;
-	}
-
-	HasTag(tag: string): boolean {
-		return this.tags.includes(tag);
-	}
-
-	private static registry: Item[] = [];
-
-	AddToRegistry(): SuccessCase {
-		if (Item.registry.includes(this)) return SuccessCase.Fail("Already in registry");
-		if (Item.registry.some((obj) => obj.name === this.name) !== undefined)
-			return SuccessCase.Fail("Already in registry by name");
-
-		Item.registry.insert(Item.registry.size(), this);
-		return SuccessCase.Ok("Added to registry");
-	}
-
-	static GetFromReigstry(name: string): Item | undefined {
-		return this.registry.find((item) => item.name === name);
-	}
-
-	static GetAllFromRegistryWithTag(tag: string): Item[] {
-		return Item.registry.filter((item) => item.HasTag(tag));
-	}
-
-	static BuildFromJson(json: string): Item {
-		const objTable = HttpService.JSONDecode(json) as JsonItem;
-		return Item.BuildFromJsonItem(objTable);
-	}
-
-	static BuildFromJsonItem(jitem: JsonItem): Item {
-		return new Item(jitem.Name, jitem.Description, jitem.Price, jitem.SellValue);
-	}
-
-	static BuildJsonArrayToRegistry(array: string) {
-		const items = HttpService.JSONDecode(array) as JsonItem[];
-		items.map((item) => this.BuildFromJsonItem(item).AddToRegistry());
-	}
-
-	constructor(
-		name: string,
-		description: string = "No description given.",
-		price: number = 0,
-		sellValue: number = 0,
-		tags: string[] = [],
-	) {
-		this.name = name;
-		this.description = description;
-		this.price = price;
-		this.sellValue = sellValue;
-		this.tags = tags;
-	}
-}
-
 export interface IPlayerData {
 	money: number;
 	axeTool: ToolType;
@@ -153,7 +90,7 @@ export abstract class Observable<T extends object> {
 export class Buildable {
 	name: string;
 	description: string;
-	requiredMaterials: Map<Item, number>;
+	requiredMaterials: Map<string, number>;
 
 	private static registry: Buildable[] = [];
 
@@ -170,12 +107,12 @@ export class Buildable {
 		return this.registry.find((buildable) => buildable.name === name);
 	}
 
-	constructor(name: string, description: string = "No description given.", requiredMaterials: Map<Item, number>) {
+	constructor(name: string, description: string = "No description given.", requiredMaterials: Map<string, number>) {
 		this.name = name;
 		this.description = description;
 		this.requiredMaterials = new Map();
 
-		requiredMaterials.forEach((value: number, key: Item, _) => {
+		requiredMaterials.forEach((value: number, key: string, _) => {
 			const actualValue = math.round(math.abs(value));
 			if (actualValue === 0) {
 				return;
@@ -190,9 +127,9 @@ export class BuiltObject {
 	rotation: number;
 	buildable: Buildable;
 	beingBuilt: boolean;
-	buildingMaterialsRequired: Map<Item, number> | undefined;
+	buildingMaterialsRequired: Map<string, number> | undefined;
 
-	InsertItem(item: Item, amount: number): number {
+	InsertItem(item: string, amount: number): number {
 		if (this.buildingMaterialsRequired === undefined) return amount;
 
 		const requiredAmount = this.buildingMaterialsRequired.get(item);
@@ -230,7 +167,7 @@ export class BuiltObject {
 		rotation: number,
 		buildable: Buildable,
 		beingBuilt: boolean,
-		buildingMaterialsRequired: Map<Item, number> | undefined,
+		buildingMaterialsRequired: Map<string, number> | undefined,
 	) {
 		this.position = position;
 		this.rotation = rotation;
@@ -294,24 +231,3 @@ export function BuildDefaultPlayerData(): IPlayerData {
 		shovelLostDurability: 0,
 	};
 }
-
-//#region World Data
-const GetWorldFunction: Function<[], [WorldData], [], []> = Function.GetFunction("http.world");
-
-if (isServer)
-	GetWorldFunction.OnServerInvoke((player: Player) => {
-		return [HttpService.JSONDecode(HttpService.GetAsync(WORLD_DATA_SOURCE_URL)) as WorldData];
-	});
-
-try {
-	const world = isServer
-		? (HttpService.JSONDecode(HttpService.GetAsync(WORLD_DATA_SOURCE_URL)) as WorldData)
-		: GetWorldFunction.FireServer()[0];
-	world.Items.map((item) => Item.BuildFromJsonItem(item).AddToRegistry());
-} catch (e) {
-	warn(
-		"A critical failure has occured: The game failed to load remote resources, being the Base Item Registry. Please check your internet connection.",
-		e,
-	);
-}
-//#endregion
