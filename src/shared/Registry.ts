@@ -22,9 +22,6 @@ function Push<T extends Identifiable>(list: T[], value: T): SuccessCase {
 }
 
 export default class Registry {
-	static readonly AddedOkMessage = "Added to registry.";
-	static readonly AddedFailMessage = "Already exists by ID.";
-
 	//#region Item
 	private static readonly items: Item[] = [];
 
