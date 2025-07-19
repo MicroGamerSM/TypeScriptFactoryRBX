@@ -1,5 +1,6 @@
 import JSONItem from "./json/Item";
 import JSONRecipe from "./json/Recipe";
+import JSONSellPoint from "./json/SellPoint";
 import JSONWorld from "./json/World";
 import { Function } from "./Networker";
 import Registry from "./Registry";
@@ -29,6 +30,20 @@ export class Recipe {
 		this.type = core.type;
 		this.inputs = core.inputs;
 		this.outputs = core.outputs;
+	}
+}
+
+export class SellPoint {
+	readonly id: string;
+	readonly item: string;
+	readonly value: number;
+	readonly name: string;
+
+	constructor(core: JSONSellPoint) {
+		this.id = core.id;
+		this.item = core.item;
+		this.value = core.value;
+		this.name = core.name;
 	}
 }
 
