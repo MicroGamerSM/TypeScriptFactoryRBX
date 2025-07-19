@@ -1,5 +1,8 @@
 import JSONItem from "./json/Item";
 import JSONRecipe from "./json/Recipe";
+import JSONWorld from "./json/World";
+import { Function } from "./Networker";
+import Registry from "./Registry";
 
 export class Item {
 	readonly id: string;
@@ -29,4 +32,27 @@ export class Recipe {
 	}
 }
 
-export default class World {}
+const RunService = game.GetService("RunService");
+const HttpService = game.GetService("HttpService");
+const GetWorldFunction: Function<[string], [JSONWorld], [], []> = Function.GetFunction("build.data.world");
+
+export default class World {
+	static fileurl = "file:///home/paul/Documents/RobloxProjects/TypeScriptFactory/world.json";
+
+	static Import(data: string | JSONWorld) {
+		if (typeIs(data, "string")) {
+			const world = RunService.IsServer()
+				? (HttpService.JSONDecode(HttpService.GetAsync(data)) as JSONWorld)
+				: GetWorldFunction.FireServer(data)[0];
+
+			this.Import(world);
+		} else {
+			data.items.map((core) => Registry.AddItem(new Item(core)));
+			data.recipies.map((core) => Registry.AddRecipe(new Recipe(core)));
+		}
+	}
+}
+
+if (RunService.IsServer()) {
+	GetWorldFunction.OnServerInvoke((_, data) => [HttpService.JSONDecode(HttpService.GetAsync(data)) as JSONWorld]);
+}
