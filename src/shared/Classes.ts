@@ -1,5 +1,5 @@
 import { Profile } from "@rbxts/profile-store";
-import { Event, EventV2, Function } from "./Networker";
+import { EventV2 } from "./Networker";
 import { SuccessCase } from "./SuccessCase";
 
 const HttpService = game.GetService("HttpService");
