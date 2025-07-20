@@ -355,7 +355,7 @@ export class EventV2<ClientToServer, ServerToClient> {
 		}
 	}
 
-	static Get<CS, SC>(token: string) {
+	static Get<CS, SC>(token: string): EventV2<CS, SC> {
 		if (isServer) {
 			return this.BuildOrWaitFor(token);
 		} else {
@@ -431,7 +431,7 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 		}
 	}
 
-	static Get<CC, SR, SC, CR>(token: string) {
+	static Get<CC, SR, SC, CR>(token: string): FunctionV2<CC, SR, SC, CR> {
 		if (isServer) {
 			return this.BuildOrWaitFor(token);
 		} else {
