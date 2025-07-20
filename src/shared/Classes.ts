@@ -1,5 +1,5 @@
 import { Profile } from "@rbxts/profile-store";
-import { Event, Function } from "./Networker";
+import { Event, EventV2, Function } from "./Networker";
 import { SuccessCase } from "./SuccessCase";
 
 const HttpService = game.GetService("HttpService");
@@ -11,7 +11,7 @@ const RunService = game.GetService("RunService");
 const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
 
-const MoneyUpdatedEvent: Event<[], [number]> = Event.GetEvent("update.money");
+const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get<undefined, number>("Update Money");
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
