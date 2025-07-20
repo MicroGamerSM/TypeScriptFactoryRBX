@@ -301,7 +301,7 @@ export class Function<
  * NetworkerV2 |
  * Wraps a RemoteEvent, and provides type safety with cross-boundary communication.
  */
-class EventV2<ClientToServer, ServerToClient> {
+export class EventV2<ClientToServer, ServerToClient> {
 	private readonly remote: RemoteEvent;
 
 	/**
@@ -372,7 +372,7 @@ class EventV2<ClientToServer, ServerToClient> {
  * NetworkerV2 |
  * Wraps a RemoteFunction, and provides type safety with cross-boundary communication.
  */
-class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
+export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 	private readonly remote: RemoteFunction;
 
 	/**
