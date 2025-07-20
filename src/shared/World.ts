@@ -39,6 +39,10 @@ export class SellPoint {
 	readonly value: number;
 	readonly name: string;
 
+	GetInstance(): Instance {
+		return game.Workspace.WaitForChild("Sell Points").WaitForChild(this.name);
+	}
+
 	constructor(core: JSONSellPoint) {
 		this.id = core.id;
 		this.item = core.item;
@@ -46,7 +50,6 @@ export class SellPoint {
 		this.name = core.name;
 	}
 }
-
 const RunService = game.GetService("RunService");
 const HttpService = game.GetService("HttpService");
 const GetWorldFunction: Function<[string], [JSONWorld], [], []> = Function.GetFunction("build.data.world");
