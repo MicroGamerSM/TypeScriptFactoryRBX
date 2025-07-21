@@ -14,6 +14,7 @@ if (isClient) {
 	let tRouterFolder = ReplicatedStorage.FindFirstChild("Router") as Folder | undefined;
 	if (tRouterFolder === undefined) {
 		tRouterFolder = new Instance("Folder", ReplicatedStorage);
+		tRouterFolder.Name = "Router";
 	}
 	RouterFolder = tRouterFolder;
 }
