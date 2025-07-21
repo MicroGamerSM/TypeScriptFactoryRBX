@@ -57,7 +57,7 @@ const BaseUi: BaseUi = game
 	.WaitForChild("BaseGui") as BaseUi;
 
 const AllUpdatedEvent: EventV2<undefined, PlayerDetails> = EventV2.Get("Update All UI");
-const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get("Update Money UI");
+const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get("Update Money");
 
 const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
 	FunctionV2.Get("Get Player Details");
