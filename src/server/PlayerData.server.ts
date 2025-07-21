@@ -1,6 +1,6 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
-import { Bridge, EventV2, FunctionV2 } from "shared/Networker";
+import { EventV2, FunctionV2 } from "shared/Networker";
 import { GetPlayerDetailsBridge } from "./Bridges";
 // import Router from "shared/Router";
 
@@ -95,8 +95,6 @@ RequestUpdateFunction.SetServerCallback(GetPlayerData);
 Players.GetPlayers().forEach(setupPlayer);
 
 //#region Bridges
-GetPlayerDetailsBridge.SetCrossCallback((player: Player) => {
-	const pd = data.get(player.UserId);
-	return pd === undefined ? false : pd;
-});
+
+GetPlayerDetailsBridge.SetCrossCallback((player: Player) => data.get(player.UserId));
 //#endregion
