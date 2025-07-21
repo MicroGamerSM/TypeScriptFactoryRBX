@@ -1,5 +1,5 @@
 import { PlayerDetails } from "shared/Classes";
-import { Event, Function } from "shared/Networker";
+import { EventV2, FunctionV2 } from "shared/Networker";
 
 const TweenService = game.GetService("TweenService");
 
@@ -56,10 +56,11 @@ const BaseUi: BaseUi = game
 	.LocalPlayer.WaitForChild("PlayerGui")
 	.WaitForChild("BaseGui") as BaseUi;
 
-const AllUpdatedEvent: Event<[], [PlayerDetails]> = Event.GetEvent("update.all");
-const MoneyUpdatedEvent: Event<[], [number]> = Event.GetEvent("update.money");
+const AllUpdatedEvent: EventV2<undefined, PlayerDetails> = EventV2.Get("Update All UI");
+const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get("Update Money UI");
 
-const RequestUpdateFunction: Function<[], [PlayerDetails], [], []> = Function.GetFunction("update.money");
+const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
+	FunctionV2.Get("Get Player Details");
 
 function UpdateAll(details: PlayerDetails) {
 	UpdateMoney(details.money);
@@ -69,9 +70,9 @@ function UpdateMoney(money: number) {
 	BaseUi.Area.Hotbar.MoneyLabel.Text = `$${formatNumber(money)}`;
 }
 
-AllUpdatedEvent.OnClientInvoke(UpdateAll);
+AllUpdatedEvent.OnClientFired(UpdateAll);
 
-MoneyUpdatedEvent.OnClientInvoke(UpdateMoney);
+MoneyUpdatedEvent.OnClientFired(UpdateMoney);
 
 let MoreOptionsOpen: boolean = false;
 BaseUi.Area.Hotbar.MoreButton.Activated.Connect(() => {
@@ -94,4 +95,4 @@ BaseUi.Area.About.PrimaryButtonGroup.Close.Activated.Connect(() => {
 });
 
 wait(1);
-UpdateAll(...RequestUpdateFunction.FireServer());
+UpdateAll(RequestUpdateFunction.InvokeServer());

@@ -49,6 +49,7 @@ type ClientFunctionCallback<I extends unknown[], O extends unknown[]> = (...args
 type ServerFunctionCallback<I extends unknown[], O extends unknown[]> = (player: Player, ...args: I) => O;
 //#endregion
 
+//#region NetworkerV1
 /**
  * Wraps a RemoteEvent, to allow Server -> Client and Client -> Server communication.
  * @deprecated Use EventV2.
@@ -296,6 +297,7 @@ export class Function<
 		}
 	}
 }
+//#endregion
 
 /**
  * NetworkerV2 |
@@ -343,10 +345,10 @@ export class EventV2<ClientToServer, ServerToClient> {
 
 	private static BuildOrWaitFor<CS, SC>(token: string) {
 		if (isServer) {
-			let remote = RouterFolder.FindFirstChild(`Function ${token}`) as RemoteEvent | undefined;
+			let remote = RouterFolder.FindFirstChild(`Event ${token}`) as RemoteEvent | undefined;
 			if (remote === undefined) {
 				const created = new Instance("RemoteEvent", RouterFolder);
-				created.Name = `Function ${token}`;
+				created.Name = `Event ${token}`;
 				remote = created;
 			}
 			return new EventV2<CS, SC>(remote);

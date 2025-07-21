@@ -1,6 +1,6 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
-import { Event, Function } from "shared/Networker";
+import { EventV2, FunctionV2 } from "shared/Networker";
 // import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
@@ -13,9 +13,10 @@ const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData())
 export const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
 export const data: Map<number, PlayerDetails> = new Map();
 
-const NotifyEvent: Event<[], [string, string?]> = Event.GetEvent("notify");
+const NotifyEvent: EventV2<undefined, [string, string?]> = EventV2.Get("Notification");
 
-const RequestUpdateFunction: Function<[], [PlayerDetails], [], []> = Function.GetFunction("update.money");
+const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
+	FunctionV2.Get("Get Player Details");
 
 function setupPlayer(player: Player) {
 	task.spawn(() => {
@@ -69,7 +70,7 @@ Players.PlayerAdded.Connect((player) => {
 	setupPlayer(player);
 });
 
-function GetPlayerData(player: Player): [PlayerDetails] {
+function GetPlayerData(player: Player): PlayerDetails {
 	function core(ind: number): PlayerDetails {
 		if (ind === 0) {
 			error("Exited GPD loop!");
@@ -79,14 +80,15 @@ function GetPlayerData(player: Player): [PlayerDetails] {
 			(() => {
 				warn(`GPD loop index ${ind} failed to fetch player data.`);
 				wait(1);
-				return core(ind--);
+				ind = ind - 1;
+				return core(ind);
 			})()
 		);
 	}
 
-	return [core(25)];
+	return core(25);
 }
 
-RequestUpdateFunction.OnServerInvoke(GetPlayerData);
+RequestUpdateFunction.SetServerCallback(GetPlayerData);
 
 Players.GetPlayers().forEach(setupPlayer);
