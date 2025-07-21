@@ -204,7 +204,7 @@ export class PlayerDetails extends Observable<IPlayerData> implements IPlayerDat
 
 		if (isClient)
 			error(
-				"Cannot create PlayerDetails on client. Ask the server for a readonly reference (get.playerdata).",
+				"Cannot create PlayerDetails on client. Ask the server for a readonly reference (FunctionV2 Get Player Details).",
 				2,
 			);
 
