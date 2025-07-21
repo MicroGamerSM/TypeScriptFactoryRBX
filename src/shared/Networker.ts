@@ -547,7 +547,7 @@ export class Bridge<Send, Recieve> {
  * ✅ Client -> Server
  * ✅ Client -> Server -> Client
  * ❎ S/C A -> S/C B
- * ❎ S/C A -> S/C B -> S/C A
+ * ✅ S/C A -> S/C B -> S/C A
  */
 
 if (isServer) {
