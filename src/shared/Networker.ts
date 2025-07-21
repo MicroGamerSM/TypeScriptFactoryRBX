@@ -480,10 +480,10 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 
 		if (isServer)
 			connection.SetServerCallback((client: Player, token: string) => {
-				let connection = RouterFolder.FindFirstChild(`Event ${token}`) as BindableFunction | undefined;
+				let connection = RouterFolder.FindFirstChild(`Bridge ${token}`) as BindableFunction | undefined;
 				if (connection === undefined) {
 					connection = new Instance("BindableFunction", RouterFolder);
-					connection.Name = `Event ${token}`;
+					connection.Name = `Bridge ${token}`;
 				}
 				return connection;
 			});
