@@ -23,7 +23,7 @@ if (isClient) {
 /**
  * Represents arguments.
  */
-type Arguments<T> = T extends readonly unknown[] ? T : [T];
+type Arguments<T> = T extends undefined ? [] : T extends readonly unknown[] ? T : [T];
 /**
  * Routes messages between scripts.
  */
@@ -351,7 +351,7 @@ export class EventV2<ClientToServer, ServerToClient> {
 			}
 			return new EventV2<CS, SC>(remote);
 		} else {
-			return new EventV2<CS, SC>(RouterFolder.WaitForChild(`Function ${token}`) as RemoteEvent);
+			return new EventV2<CS, SC>(RouterFolder.WaitForChild(`Event ${token}`) as RemoteEvent);
 		}
 	}
 
@@ -406,16 +406,14 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 	 * Set's the client's callback.
 	 * @param callback The callback.
 	 */
-	SetClientCallbak(callback: (...args: Arguments<ServerCall>) => ClientReturn) {
+	SetClientCallback(callback: (...args: Arguments<ServerCall>) => ClientReturn) {
 		this.remote.OnClientInvoke = callback as (...args: unknown[]) => ClientReturn;
 	}
 
 	/** The FunctionV2 used for when a client wants an EventV2 to be built. */
-	static readonly BuildEventConnector: FunctionV2<string, RemoteEvent, undefined, undefined> =
-		this.BuildOrWaitFor("Build Event");
+	static readonly BuildEventConnector = this.BuildEvent();
 	/** The FunctionV2 used for when a client wants a FunctionV2 to be built. */
-	static readonly BuildFunctionConnector: FunctionV2<string, RemoteFunction, undefined, undefined> =
-		this.BuildOrWaitFor("Build Function");
+	static readonly BuildFunctionConnector = this.BuildFunction();
 
 	private static BuildOrWaitFor<CC, SR, SC, CR>(token: string) {
 		if (isServer) {
@@ -439,6 +437,38 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 		}
 	}
 
+	private static BuildFunction(): FunctionV2<string, RemoteFunction, undefined, undefined> {
+		const connection: FunctionV2<string, RemoteFunction, undefined, undefined> =
+			this.BuildOrWaitFor("NetworkerV2 Build Function");
+
+		if (isServer)
+			connection.SetServerCallback((client: Player, token: string) => {
+				let connection = RouterFolder.FindFirstChild(`Function ${token}`) as RemoteFunction | undefined;
+				if (connection === undefined) {
+					connection = new Instance("RemoteFunction", RouterFolder);
+					connection.Name = `Function ${token}`;
+				}
+				return connection;
+			});
+		return connection;
+	}
+
+	private static BuildEvent(): FunctionV2<string, RemoteEvent, undefined, undefined> {
+		const connection: FunctionV2<string, RemoteEvent, undefined, undefined> =
+			this.BuildOrWaitFor("NetworkerV2 Build Event");
+
+		if (isServer)
+			connection.SetServerCallback((client: Player, token: string) => {
+				let connection = RouterFolder.FindFirstChild(`Event ${token}`) as RemoteEvent | undefined;
+				if (connection === undefined) {
+					connection = new Instance("RemoteEvent", RouterFolder);
+					connection.Name = `Event ${token}`;
+				}
+				return connection;
+			});
+		return connection;
+	}
+
 	private constructor(remote: RemoteFunction) {
 		this.remote = remote;
 	}
@@ -454,6 +484,7 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
  */
 
 if (isServer) {
+	// NetworkerV1
 	Function.RequestNewFunctionFunction.OnServerInvoke((player, token) => {
 		return [Function.GetFunction(token).remoteFunction];
 	});
