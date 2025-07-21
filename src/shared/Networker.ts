@@ -412,10 +412,12 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 		this.remote.OnClientInvoke = callback as (...args: unknown[]) => ClientReturn;
 	}
 
-	/** The FunctionV2 used for when a client wants an EventV2 to be built. */
+	/** The FunctionV2 used for when a client wants an EventV2 built. */
 	static readonly BuildEventConnector = this.BuildEvent();
-	/** The FunctionV2 used for when a client wants a FunctionV2 to be built. */
+	/** The FunctionV2 used for when a client wants a FunctionV2 built. */
 	static readonly BuildFunctionConnector = this.BuildFunction();
+	/** The FunctionV2 used for when a clients wants a Bridge built. */
+	static readonly BuildBridgeConnector = this.BuildBridge();
 
 	private static BuildOrWaitFor<CC, SR, SC, CR>(token: string) {
 		if (isServer) {
@@ -471,8 +473,71 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 		return connection;
 	}
 
+	private static BuildBridge(): FunctionV2<string, BindableFunction, undefined, undefined> {
+		const connection: FunctionV2<string, BindableFunction, undefined, undefined> =
+			this.BuildOrWaitFor("NetworkerV2 Build Bridge");
+
+		if (isServer)
+			connection.SetServerCallback((client: Player, token: string) => {
+				let connection = RouterFolder.FindFirstChild(`Event ${token}`) as BindableFunction | undefined;
+				if (connection === undefined) {
+					connection = new Instance("BindableFunction", RouterFolder);
+					connection.Name = `Event ${token}`;
+				}
+				return connection;
+			});
+		return connection;
+	}
+
 	private constructor(remote: RemoteFunction) {
 		this.remote = remote;
+	}
+}
+
+export class Bridge<Send, Recieve> {
+	private readonly bridge: BindableFunction;
+
+	/**
+	 * Sends data over the bridge.
+	 * @param args The data to send.
+	 * @returns The data sent back.
+	 */
+	Cross(...args: Arguments<Send>): Recieve {
+		return this.bridge.Invoke(...args);
+	}
+
+	/**
+	 * Set's the callback.
+	 * @param callback The function to call when the bridge is crossed.
+	 */
+	SetCrossCallback(callback: (...args: Arguments<Send>) => Recieve) {
+		this.bridge.OnInvoke = callback;
+	}
+
+	private static BuildOrWaitFor<S, R>(token: string) {
+		if (isServer) {
+			let bridge = RouterFolder.FindFirstChild(`Bridge ${token}`) as BindableFunction | undefined;
+			if (bridge === undefined) {
+				const created = new Instance("BindableFunction", RouterFolder);
+				created.Name = `Bridge ${token}`;
+				bridge = created;
+			}
+			return new Bridge<S, R>(bridge);
+		} else {
+			return new Bridge<S, R>(RouterFolder.WaitForChild(`Bridge ${token}`) as BindableFunction);
+		}
+	}
+
+	static Get<S, R>(token: string): Bridge<S, R> {
+		if (isServer) {
+			return this.BuildOrWaitFor(token);
+		} else {
+			return new Bridge<S, R>(FunctionV2.BuildBridgeConnector.InvokeServer(token));
+		}
+	}
+
+	private constructor(bridge: BindableFunction) {
+		this.bridge = bridge;
 	}
 }
 
