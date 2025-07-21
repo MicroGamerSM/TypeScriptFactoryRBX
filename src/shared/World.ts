@@ -52,7 +52,7 @@ export class SellPoint {
 }
 const RunService = game.GetService("RunService");
 const HttpService = game.GetService("HttpService");
-const GetWorldFunction: FunctionV2<string, JSONWorld, undefined, undefined> = FunctionV2.Get("Build World Data");
+const GetWorldFunction: FunctionV2<string, JSONWorld, void, void> = FunctionV2.Get("Build World Data");
 
 export default class World {
 	static fileurl = "file:///home/paul/Documents/RobloxProjects/TypeScriptFactory/world.json";

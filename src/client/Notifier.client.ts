@@ -7,7 +7,7 @@ const TextChannels: Folder = TextChatService.WaitForChild("TextChannels") as Fol
 
 const General: TextChannel = TextChannels.WaitForChild("RBXGeneral") as TextChannel;
 
-const NotifyEvent: EventV2<undefined, string> = EventV2.Get("Notification");
+const NotifyEvent: EventV2<void, string> = EventV2.Get("Notification");
 
 NotifyEvent.OnClientFired((text: string) => {
 	ShowNotificationBridge.Cross(text);

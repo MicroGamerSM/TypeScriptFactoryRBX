@@ -59,11 +59,10 @@ const BaseUi: BaseUi = game
 	.LocalPlayer.WaitForChild("PlayerGui")
 	.WaitForChild("BaseGui") as BaseUi;
 
-const AllUpdatedEvent: EventV2<undefined, PlayerDetails> = EventV2.Get("Update All UI");
-const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get("Update Money");
+const AllUpdatedEvent: EventV2<void, PlayerDetails> = EventV2.Get("Update All UI");
+const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
 
-const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
-	FunctionV2.Get("Get Player Details");
+const RequestUpdateFunction: FunctionV2<void, PlayerDetails, void, void> = FunctionV2.Get("Get Player Details");
 
 function ShowNotification(text: string) {
 	const NewNotification = BaseUi.ExampleNotification.Clone();

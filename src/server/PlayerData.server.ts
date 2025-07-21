@@ -14,10 +14,9 @@ const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData())
 const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
 const data: Map<number, PlayerDetails> = new Map();
 
-const NotifyEvent: EventV2<undefined, [string, string?]> = EventV2.Get("Notification");
+const NotifyEvent: EventV2<void, [string]> = EventV2.Get("Notification");
 
-const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
-	FunctionV2.Get("Get Player Details");
+const RequestUpdateFunction: FunctionV2<void, PlayerDetails, void, void> = FunctionV2.Get("Get Player Details");
 
 function setupPlayer(player: Player) {
 	task.spawn(() => {

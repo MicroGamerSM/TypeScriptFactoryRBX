@@ -11,7 +11,7 @@ const RunService = game.GetService("RunService");
 const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
 
-const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get<undefined, number>("Update Money");
+const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
 
 export type NotUndefined<T> = Exclude<T, undefined>;
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
