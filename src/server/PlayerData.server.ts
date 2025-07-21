@@ -1,6 +1,7 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
 import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
-import { EventV2, FunctionV2 } from "shared/Networker";
+import { Bridge, EventV2, FunctionV2 } from "shared/Networker";
+import { GetPlayerDetailsBridge } from "./Bridges";
 // import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
@@ -10,8 +11,8 @@ const Players = game.GetService("Players");
 
 const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
 
-export const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
-export const data: Map<number, PlayerDetails> = new Map();
+const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
+const data: Map<number, PlayerDetails> = new Map();
 
 const NotifyEvent: EventV2<undefined, [string, string?]> = EventV2.Get("Notification");
 
@@ -92,3 +93,10 @@ function GetPlayerData(player: Player): PlayerDetails {
 RequestUpdateFunction.SetServerCallback(GetPlayerData);
 
 Players.GetPlayers().forEach(setupPlayer);
+
+//#region Bridges
+GetPlayerDetailsBridge.SetCrossCallback((player: Player) => {
+	const pd = data.get(player.UserId);
+	return pd === undefined ? false : pd;
+});
+//#endregion
