@@ -1,5 +1,6 @@
 import { PlayerDetails } from "shared/Classes";
 import { EventV2, FunctionV2 } from "shared/Networker";
+import { ShowNotificationBridge } from "./Bridges";
 
 const TweenService = game.GetService("TweenService");
 
@@ -25,7 +26,9 @@ type BaseUi = ScreenGui & {
 				};
 			};
 		};
+		Notifications: CanvasGroup;
 	};
+	ExampleNotification: TextLabel;
 };
 
 function chunkString(str: string, chunkSize = 3): string[] {
@@ -62,6 +65,18 @@ const MoneyUpdatedEvent: EventV2<undefined, number> = EventV2.Get("Update Money"
 const RequestUpdateFunction: FunctionV2<undefined, PlayerDetails, undefined, undefined> =
 	FunctionV2.Get("Get Player Details");
 
+function ShowNotification(text: string) {
+	const NewNotification = BaseUi.ExampleNotification.Clone();
+	NewNotification.Text = text;
+	NewNotification.LayoutOrder = BaseUi.Area.Notifications.GetChildren().size();
+	NewNotification.Parent = BaseUi.Area.Notifications;
+	NewNotification.Visible = true;
+	task.spawn(() => {
+		wait(15);
+		NewNotification.Destroy();
+	});
+}
+
 function UpdateAll(details: PlayerDetails) {
 	UpdateMoney(details.money);
 }
@@ -96,3 +111,5 @@ BaseUi.Area.About.PrimaryButtonGroup.Close.Activated.Connect(() => {
 
 wait(1);
 UpdateAll(RequestUpdateFunction.InvokeServer());
+
+ShowNotificationBridge.SetCrossCallback(ShowNotification);
