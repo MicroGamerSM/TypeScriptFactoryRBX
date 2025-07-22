@@ -55,7 +55,7 @@ const HttpService = game.GetService("HttpService");
 const GetWorldFunction: FunctionV2<string, JSONWorld, void, void> = FunctionV2.Get("Build World Data");
 
 export default class World {
-	static fileurl = "file:///home/paul/Documents/RobloxProjects/TypeScriptFactory/world.json";
+	static readonly fileurl = "file:///home/paul/Documents/RobloxProjects/TypeScriptFactory/world.json";
 
 	static Import(data: string | JSONWorld) {
 		if (typeIs(data, "string")) {
