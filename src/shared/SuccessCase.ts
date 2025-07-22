@@ -126,14 +126,11 @@ export class ValueSuccessCase<T> {
 		try {
 			return ValueSuccessCase.Ok("The function completed successfully", method(...args));
 		} catch (error) {
-			if (typeOf(error) === "string") {
-				return ValueSuccessCase.Fail(
-					(error as string) ?? "Failed to parse the error message as a string.",
-					undefined,
-				);
-			}
+			return ValueSuccessCase.Fail(
+				(error as string) ?? "Failed to parse the error message as a string.",
+				undefined,
+			);
 		}
-		error("Managed to exit try-catch.");
 	}
 
 	// Creates a successful ValueSuccessCase.
