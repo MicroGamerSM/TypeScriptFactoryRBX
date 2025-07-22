@@ -30,9 +30,6 @@ const RouterFolder: Folder = (() => {
  */
 type Arguments<T> = T extends undefined ? [] : T extends readonly unknown[] ? T : [T];
 /**
- * Routes messages between scripts.
- */
-/**
  * Represents a function to unlink an event.
  */
 type Unlinker = () => SuccessCase;
@@ -499,6 +496,9 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 	}
 }
 
+/**
+ * Routes messages between scripts.
+ */
 export class Bridge<Send, Recieve> {
 	private readonly bridge: BindableFunction;
 
