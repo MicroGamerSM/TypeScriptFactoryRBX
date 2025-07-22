@@ -18,6 +18,8 @@ const NotifyEvent: EventV2<void, [string]> = EventV2.Get("Notification");
 
 const RequestUpdateFunction: FunctionV2<void, PlayerDetails, void, void> = FunctionV2.Get("Get Player Details");
 
+const MaximumGetPlayerDataLoopCount: number = 25;
+
 function setupPlayer(player: Player) {
 	task.spawn(() => {
 		const profile = store.StartSessionAsync(`Pds${player.UserId}`, {
@@ -86,7 +88,7 @@ function GetPlayerData(player: Player): PlayerDetails {
 		);
 	}
 
-	return core(25);
+	return core(MaximumGetPlayerDataLoopCount);
 }
 
 RequestUpdateFunction.SetServerCallback(GetPlayerData);
