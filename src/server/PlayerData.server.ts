@@ -74,7 +74,7 @@ Players.PlayerAdded.Connect((player) => {
 
 function GetPlayerData(player: Player): PlayerDetails {
 	function core(ind: number): PlayerDetails {
-		if (ind === 0) {
+		if (ind <= 0) {
 			error("Exited GPD loop!");
 		}
 		return (
