@@ -1,6 +1,6 @@
-import { PlayerDetails } from "shared/Classes";
 import { EventV2, FunctionV2 } from "shared/Networker";
 import { ShowNotificationBridge } from "./Bridges";
+import PlayerDetails from "shared/PlayerDetails";
 
 const TweenService = game.GetService("TweenService");
 

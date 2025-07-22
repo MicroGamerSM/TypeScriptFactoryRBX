@@ -1,7 +1,8 @@
 import ProfileStore, { Profile } from "@rbxts/profile-store";
-import { BuildDefaultPlayerData, IPlayerData, PlayerDetails } from "shared/Classes";
 import { EventV2, FunctionV2 } from "shared/Networker";
 import { GetPlayerDetailsBridge } from "./Bridges";
+import IPlayerData from "shared/IPlayerData";
+import PlayerDetails from "shared/PlayerDetails";
 // import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
@@ -9,7 +10,7 @@ const DataStore = RunService.IsStudio() ? "Development" : "Production";
 
 const Players = game.GetService("Players");
 
-const store = ProfileStore.New<IPlayerData>(DataStore, BuildDefaultPlayerData());
+const store = ProfileStore.New<IPlayerData>(DataStore, PlayerDetails.BuildDefault());
 
 const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
 const data: Map<number, PlayerDetails> = new Map();
