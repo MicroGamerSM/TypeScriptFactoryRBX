@@ -1,6 +1,7 @@
 import { EventV2, FunctionV2 } from "shared/Networker";
 import { ShowNotificationBridge } from "./Bridges";
-import PlayerDetails from "shared/PlayerDetails";
+// import PlayerDetails from "shared/PlayerDetails";
+import IPlayerData from "shared/IPlayerData";
 
 const TweenService = game.GetService("TweenService");
 
@@ -59,10 +60,10 @@ const BaseUi: BaseUi = game
 	.LocalPlayer.WaitForChild("PlayerGui")
 	.WaitForChild("BaseGui") as BaseUi;
 
-const AllUpdatedEvent: EventV2<void, PlayerDetails> = EventV2.Get("Update All UI");
+const AllUpdatedEvent: EventV2<void, IPlayerData> = EventV2.Get("Update All UI");
 const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
 
-const RequestUpdateFunction: FunctionV2<void, PlayerDetails, void, void> = FunctionV2.Get("Get Player Details");
+const RequestUpdateFunction: FunctionV2<void, IPlayerData, void, void> = FunctionV2.Get("Get Player Details");
 
 function ShowNotification(text: string) {
 	const NewNotification = BaseUi.ExampleNotification.Clone();
@@ -76,7 +77,7 @@ function ShowNotification(text: string) {
 	});
 }
 
-function UpdateAll(details: PlayerDetails) {
+function UpdateAll(details: IPlayerData) {
 	UpdateMoney(details.money);
 }
 

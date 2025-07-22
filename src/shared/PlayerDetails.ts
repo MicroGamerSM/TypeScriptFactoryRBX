@@ -1,12 +1,11 @@
 import { Profile } from "@rbxts/profile-store";
 import IPlayerData from "./IPlayerData";
-import Observable from "./Observable";
 import ToolType from "./ToolType";
 import { EventV2 } from "./Networker";
 
 const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
 
-export default class PlayerDetails extends Observable<IPlayerData> implements IPlayerData {
+export default class PlayerDetails implements IPlayerData {
 	money: number;
 	axeTool: ToolType;
 	axeLostDurability: number;
@@ -28,7 +27,6 @@ export default class PlayerDetails extends Observable<IPlayerData> implements IP
 	}
 
 	constructor(source: Profile<IPlayerData, object>, player: Player) {
-		super(source.Data);
 		this.money = source.Data.money;
 		this.axeTool = source.Data.axeTool;
 		this.axeLostDurability = source.Data.axeLostDurability;
@@ -43,13 +41,6 @@ export default class PlayerDetails extends Observable<IPlayerData> implements IP
 				2,
 			);
 
-		this.Changed((key, oldV, newV) => {
-			if (source.IsActive()) source.Data[key] = newV;
-			else warn("Using PlayerDetails after Profile is disabled!");
-
-			if (key === "money") {
-				MoneyUpdatedEvent.FireClient(player, this.money);
-			}
-		});
+		error("stop", 2);
 	}
 }

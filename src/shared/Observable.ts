@@ -1,3 +1,5 @@
+import Observe from "./Observe";
+
 export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
 export default abstract class Observable<T extends object> {
 	private readonly _listeners = new Set<ChangeListener<T>>();

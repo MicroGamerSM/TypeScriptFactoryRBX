@@ -3,6 +3,7 @@ import { EventV2, FunctionV2 } from "shared/Networker";
 import { GetPlayerDetailsBridge } from "./Bridges";
 import IPlayerData from "shared/IPlayerData";
 import PlayerDetails from "shared/PlayerDetails";
+import Observe from "shared/Observe";
 // import Router from "shared/Router";
 
 const RunService = game.GetService("RunService");
@@ -13,11 +14,11 @@ const Players = game.GetService("Players");
 const store = ProfileStore.New<IPlayerData>(DataStore, PlayerDetails.BuildDefault());
 
 const profiles: Map<Player, Profile<IPlayerData, object>> = new Map();
-const data: Map<number, PlayerDetails> = new Map();
+const data: Map<number, IPlayerData> = new Map();
 
 const NotifyEvent: EventV2<void, [string]> = EventV2.Get("Notification");
 
-const RequestUpdateFunction: FunctionV2<void, PlayerDetails, void, void> = FunctionV2.Get("Get Player Details");
+const RequestUpdateFunction: FunctionV2<void, IPlayerData, void, void> = FunctionV2.Get("Get Player Details");
 
 const MaximumGetPlayerDataLoopCount: number = 25;
 
@@ -56,11 +57,11 @@ function setupPlayer(player: Player) {
 		MoneyValue.Name = "Money";
 		MoneyValue.Value = profile.Data.money;
 
-		const pd = new PlayerDetails(profile, player);
-
-		pd.Changed((key, oldValue, newValue) => {
-			if (key === "money") {
-				MoneyValue.Value = newValue;
+		const pd = Observe(profile.Data, (key, oldValue, newValue) => {
+			switch (key) {
+				case "money":
+					MoneyValue.Value = newValue;
+					break;
 			}
 		});
 
