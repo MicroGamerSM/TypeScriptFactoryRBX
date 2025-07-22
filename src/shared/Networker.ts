@@ -7,17 +7,21 @@ const RunService = game.GetService("RunService");
 const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
 
-let RouterFolder: Folder;
-if (isClient) {
-	RouterFolder = ReplicatedStorage.WaitForChild("Router") as Folder;
-} else if (isServer) {
-	let tRouterFolder = ReplicatedStorage.FindFirstChild("Router") as Folder | undefined;
-	if (tRouterFolder === undefined) {
-		tRouterFolder = new Instance("Folder", ReplicatedStorage);
-		tRouterFolder.Name = "Router";
+const RouterFolder: Folder = (() => {
+	let RouterFolder: Folder;
+	if (isClient) {
+		RouterFolder = ReplicatedStorage.WaitForChild("Router") as Folder;
+	} else {
+		let tRouterFolder = ReplicatedStorage.FindFirstChild("Router") as Folder | undefined;
+		if (tRouterFolder === undefined) {
+			tRouterFolder = new Instance("Folder", ReplicatedStorage);
+			tRouterFolder.Name = "Router";
+		}
+		RouterFolder = tRouterFolder;
 	}
-	RouterFolder = tRouterFolder;
-}
+
+	return RouterFolder;
+})();
 //#endregion
 
 //#region Helper Types
