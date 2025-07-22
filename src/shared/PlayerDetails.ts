@@ -6,7 +6,7 @@ import { EventV2 } from "./Networker";
 
 const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
 
-export class PlayerDetails extends Observable<IPlayerData> implements IPlayerData {
+export default class PlayerDetails extends Observable<IPlayerData> implements IPlayerData {
 	money: number;
 	axeTool: ToolType;
 	axeLostDurability: number;
