@@ -25,12 +25,12 @@ export default abstract class Observable<T extends object> {
 			},
 			__newindex: (thisObject, key, value) => {
 				const oldValue = rawget(thisObject, key);
-				if (oldValue !== value) {
-					rawset(thisObject, key, value);
-					for (const listener of this._listeners) {
-						listener(key as keyof T, oldValue as never, value as never);
-					}
-				}
+				if (value === oldValue) return;
+
+				rawset(this, key, value);
+				this._listeners.forEach((listener) =>
+					listener(key as keyof T, oldValue as T[keyof T], value as T[keyof T]),
+				);
 			},
 		});
 	}
