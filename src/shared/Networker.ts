@@ -1,5 +1,5 @@
 //#region Setup
-import { SuccessCase, ValueSuccessCase } from "./SuccessCase";
+import { SuccessCase } from "./SuccessCase";
 
 const ReplicatedStorage = game.GetService("ReplicatedStorage");
 const RunService = game.GetService("RunService");
