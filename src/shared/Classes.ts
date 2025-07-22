@@ -11,10 +11,7 @@ const RunService = game.GetService("RunService");
 const isServer = RunService.IsServer();
 const isClient = RunService.IsClient();
 
-const MoneyUpdatedEvent: EventV2<void, number> = EventV2.Get("Update Money");
-
 export type NotUndefined<T> = Exclude<T, undefined>;
-export type ChangeListener<T> = <K extends keyof T>(key: K, oldValue: T[K], newValue: T[K]) => void;
 export type JsonItem = {
 	Name: string;
 	Description: string;
@@ -31,61 +28,6 @@ export type WorldData = {
 	Items: JsonItem[];
 	Recipes: JsonRecipe[];
 };
-
-export enum ToolType {
-	None = 0,
-	Wood = 1,
-	Stone = 2,
-	Bronze = 3,
-	Iron = 4,
-}
-
-export interface IPlayerData {
-	money: number;
-	axeTool: ToolType;
-	axeLostDurability: number;
-	pickaxeTool: ToolType;
-	pickaxeLostDurability: number;
-	shovelTool: ToolType;
-	shovelLostDurability: number;
-}
-
-export abstract class Observable<T extends object> {
-	private readonly _listeners = new Set<ChangeListener<T>>();
-
-	/** Subscribes to property changes. Returns an unsubscribe function. */
-	Changed(fn: ChangeListener<T>): () => void {
-		this._listeners.add(fn);
-		return () => this._listeners.delete(fn);
-	}
-
-	protected constructor(initial: T) {
-		// 1. Shallow-copy the fields before setting up the metatable
-		for (const [k, v] of pairs(initial as Record<string, unknown>)) {
-			(this as Record<string, unknown>)[k] = v;
-		}
-
-		// 2. Install metatable to observe changes
-		setmetatable(this, {
-			__index: (thisObject, key) => {
-				const thisData = rawget(thisObject, key);
-				if (thisData === undefined) {
-					return rawget(Observable, key);
-				}
-				return thisData;
-			},
-			__newindex: (thisObject, key, value) => {
-				const oldValue = rawget(thisObject, key);
-				if (oldValue !== value) {
-					rawset(thisObject, key, value);
-					for (const listener of this._listeners) {
-						listener(key as keyof T, oldValue as never, value as never);
-					}
-				}
-			},
-		});
-	}
-}
 
 export class Buildable {
 	name: string;
@@ -181,53 +123,4 @@ export class BuiltObject {
 			this.buildingMaterialsRequired = undefined;
 		}
 	}
-}
-
-export class PlayerDetails extends Observable<IPlayerData> implements IPlayerData {
-	money: number;
-	axeTool: ToolType;
-	axeLostDurability: number;
-	pickaxeTool: ToolType;
-	pickaxeLostDurability: number;
-	shovelTool: ToolType;
-	shovelLostDurability: number;
-
-	constructor(source: Profile<IPlayerData, object>, player: Player) {
-		super(source.Data);
-		this.money = source.Data.money;
-		this.axeTool = source.Data.axeTool;
-		this.axeLostDurability = source.Data.axeLostDurability;
-		this.pickaxeTool = source.Data.pickaxeTool;
-		this.pickaxeLostDurability = source.Data.pickaxeLostDurability;
-		this.shovelTool = source.Data.shovelTool;
-		this.shovelLostDurability = source.Data.shovelLostDurability;
-
-		if (isClient)
-			error(
-				"Cannot create PlayerDetails on client. Ask the server for a readonly reference (FunctionV2 Get Player Details).",
-				2,
-			);
-
-		this.Changed((key, oldV, newV) => {
-			if (source.IsActive()) source.Data[key] = newV;
-			else warn("Using PlayerDetails after Profile is disabled!");
-
-			if (key === "money") {
-				MoneyUpdatedEvent.FireClient(player, this.money);
-			}
-		});
-	}
-}
-
-// Generates a default player data object.
-export function BuildDefaultPlayerData(): IPlayerData {
-	return {
-		money: 100,
-		axeTool: ToolType.Wood,
-		axeLostDurability: 0,
-		pickaxeTool: ToolType.None,
-		pickaxeLostDurability: 0,
-		shovelTool: ToolType.None,
-		shovelLostDurability: 0,
-	};
 }
