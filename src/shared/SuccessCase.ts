@@ -33,7 +33,7 @@ export class SuccessCase {
 		return new SuccessCase(source[0], source[1]);
 	}
 
-	static Try<F extends (...args: readonly unknown[]) => undefined>(method: F, ...args: Parameters<F>): SuccessCase {
+	static Try<F extends (...args: readonly unknown[]) => void>(method: F, ...args: Parameters<F>): SuccessCase {
 		try {
 			method(...args);
 		} catch (error) {
