@@ -345,7 +345,7 @@ export class EventV2<ClientToServer, ServerToClient> {
 		return () => connection.Disconnect();
 	}
 
-	private static BuildOrWaitFor<CS, SC>(token: string) {
+	static BuildOrWaitFor<CS, SC>(token: string) {
 		if (isServer) {
 			let remote = RouterFolder.FindFirstChild(`Event ${token}`) as RemoteEvent | undefined;
 			if (remote === undefined) {
@@ -421,7 +421,7 @@ export class FunctionV2<ClientCall, ServerReturn, ServerCall, ClientReturn> {
 	/** The FunctionV2 used for when a clients wants a Bridge built. */
 	static readonly BuildBridgeConnector = this.BuildBridge();
 
-	private static BuildOrWaitFor<CC, SR, SC, CR>(token: string) {
+	static BuildOrWaitFor<CC, SR, SC, CR>(token: string) {
 		if (isServer) {
 			let remote = RouterFolder.FindFirstChild(`Function ${token}`) as RemoteFunction | undefined;
 			if (remote === undefined) {
@@ -519,7 +519,7 @@ export class Bridge<Send, Recieve> {
 		this.bridge.OnInvoke = callback;
 	}
 
-	private static BuildOrWaitFor<S, R>(token: string) {
+	static BuildOrWaitFor<S, R>(token: string) {
 		if (isServer) {
 			let bridge = RouterFolder.FindFirstChild(`Bridge ${token}`) as BindableFunction | undefined;
 			if (bridge === undefined) {
