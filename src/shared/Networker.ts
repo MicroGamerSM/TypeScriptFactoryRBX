@@ -313,7 +313,7 @@ export class EventV2<ClientToServer, ServerToClient> {
 	 * @param args The data to pass to the server.
 	 */
 	FireServer(...args: Arguments<ClientToServer>) {
-		this.remote.FireServer(args);
+		this.remote.FireServer(...args);
 	}
 
 	/**
@@ -322,7 +322,7 @@ export class EventV2<ClientToServer, ServerToClient> {
 	 * @param args The data to pass to the client.
 	 */
 	FireClient(client: Player, ...args: Arguments<ServerToClient>) {
-		this.remote.FireClient(client, args);
+		this.remote.FireClient(client, ...args);
 	}
 
 	/**
